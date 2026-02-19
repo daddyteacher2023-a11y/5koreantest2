@@ -1,0 +1,3216 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설명하는 글 요약하기: 구조 활용</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --bg-color: #f0f9ff;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --muted-color: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --radius-lg: 20px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            min-height: 80vh;
+            position: relative;
+        }
+
+        /* Util */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .premium-shadow {
+            box-shadow: 0 20px 50px rgba(59, 130, 246, 0.15);
+        }
+
+        .mb-6 {
+            margin-bottom: 2.5rem;
+        }
+
+        .report-export-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .mt-6 {
+            margin-top: 2.5rem;
+        }
+
+        /* UI Elements */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .badge.beginner {
+            background: #4ade80;
+        }
+
+        .badge.intermediate {
+            background: #f59e0b;
+        }
+
+        .badge.advanced {
+            background: #ef4444;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar {
+            font-size: 2.5rem;
+            display: inline-block;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Selection Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .selection-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .selection-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        /* Navigation */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Steps (Side Tabs - 띠지) */
+        .game-layout-container {
+            display: flex;
+            gap: 0;
+            position: relative;
+        }
+
+        .side-tab-container {
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 10px;
+        }
+
+        .side-tab {
+            width: 40px;
+            padding: 15px 5px;
+            background: #e2e8f0;
+            color: #64748b;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #cbd5e1;
+            border-left: none;
+            margin-bottom: 5px;
+            opacity: 0.6;
+        }
+
+        .side-tab:hover {
+            opacity: 1;
+            background: #cbd5e1;
+            width: 45px;
+        }
+
+        .side-tab.active {
+            background: var(--primary);
+            color: white;
+            opacity: 1;
+            width: 50px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        /* Continuous Highlighter Styles */
+        .hl-para {
+            transition: background 0.3s;
+            padding: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .hl-para:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .hl-p1 {
+            background-color: rgba(254, 240, 138, 0.7);
+        }
+
+        /* Yellow */
+        .hl-p2 {
+            background-color: rgba(187, 247, 208, 0.7);
+        }
+
+        /* Green */
+        .hl-p3 {
+            background-color: rgba(191, 219, 254, 0.7);
+        }
+
+        /* Blue */
+        .hl-p4 {
+            background-color: rgba(254, 202, 202, 0.7);
+        }
+
+        /* Red */
+        .hl-p5 {
+            background-color: rgba(233, 213, 255, 0.7);
+        }
+
+        /* Purple */
+        .hl-p6 {
+            background-color: rgba(255, 237, 213, 0.7);
+        }
+
+        /* Orange */
+
+        /* Steps (Legacy Indicator Hidden if needed) */
+        .step-indicator {
+            display: none;
+            /* Hide if using side tabs */
+        }
+
+        /* Split View & Panel */
+        .split-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .text-panel {
+            background: #f8fafc;
+            padding: 20px 25px;
+            border-radius: 12px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            border: 1px solid #e2e8f0;
+            white-space: pre-wrap;
+            max-height: 40vh;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .text-panel p {
+            margin-bottom: 0.8rem;
+            text-align: justify;
+        }
+
+        .activity-panel {
+            background: white;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+
+        /* Numbering Step */
+        .para-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #e2e8f0;
+            color: #64748b;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-right: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .para-number.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .paragraph-block {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .paragraph-block:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .paragraph-block.numbered {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+        }
+
+        /* Interactive Elements */
+        .splitter {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            background: #e2e8f0;
+            margin: 0 5px;
+            cursor: pointer;
+            color: #64748b;
+            vertical-align: middle;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .splitter:hover {
+            background: #cbd5e1;
+        }
+
+        .splitter.active {
+            background: var(--primary);
+            color: white;
+            width: auto;
+            padding: 0 10px;
+            border-radius: 15px;
+        }
+
+        .sentence {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .sentence:hover {
+            background: #eff6ff;
+        }
+
+        .sentence.selected {
+            background: #bfdbfe;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .option-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        button.action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button.action-btn.secondary {
+            background: #94a3b8;
+            margin-top: 10px;
+        }
+
+        .feedback-msg {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feedback-msg.good {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .feedback-msg.bad {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Step 5 Diagram */
+        .diagram-area {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .structure-box {
+            background: white;
+            border: 2px solid #cbd5e1;
+            padding: 12px 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.95rem;
+            width: 100%;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: keep-all;
+            line-height: 1.4;
+            box-sizing: border-box;
+        }
+
+        .structure-box.main {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .structure-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+
+        .structure-row.spread {
+            justify-content: space-around;
+        }
+
+        .arrow-row {
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        /* Diagram Builder UI */
+        .diagram-builder-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .builder-btn {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .builder-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .builder-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .structure-box-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .remove-box-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-box-btn {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            color: #64748b;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-box-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Matching Quiz Grid */
+        /* Sequential Click Matching Styles */
+        .matching-container {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        /* Drag-Table Quiz Styles */
+        .drag-quiz-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .drag-quiz-table th,
+        .drag-quiz-table td {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .drag-quiz-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .quiz-drop-zone {
+            min-height: 80px;
+            background: #fdfdfd;
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            padding: 5px;
+        }
+
+        .quiz-drop-zone.hover {
+            background: #f0f9ff;
+            border-color: #3b82f6;
+        }
+
+        .quiz-drop-zone.filled {
+            border-style: solid;
+            background: white;
+            border-color: #3b82f6;
+        }
+
+        .draggable-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            margin-top: 20px;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        .draggable-item {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.9rem;
+            color: #1e40af;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .matching-img-small {
+            max-width: 100%;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .matching-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 110px;
+            /* Fixed height for row alignment */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .matching-item:hover {
+            border-color: var(--primary-light);
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .matching-item.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .matching-item:active {
+            transform: scale(0.98);
+            background: #f1f5f9;
+        }
+
+        /* Canvas Interaction Styles */
+        .canvas-token {
+            display: inline;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .canvas-token:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .canvas-token:active {
+            transform: scale(0.95);
+            background: #e2e8f0;
+        }
+
+        .canvas-token.topic {
+            display: inline-block;
+            background: transparent;
+            padding: 1px 0;
+            border-bottom: 2px solid var(--primary);
+            font-weight: bold;
+        }
+
+        .canvas-token.marker {
+            display: inline-block;
+            border: 2px dashed #fb923c;
+            /* Orange Dashed */
+            border-radius: 6px;
+            padding: 0px 4px;
+        }
+
+        .canvas-sentence {
+            display: inline;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        .canvas-sentence:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .canvas-sentence:active {
+            transform: scale(0.99);
+            background: #dbeafe;
+        }
+
+        .canvas-sentence.selected {
+            background: #d1fae5;
+            border-bottom: 2px solid #10b981;
+        }
+
+
+        .matching-item.matched.group-0 {
+            border-color: #3b82f6 !important;
+            /* Blue */
+            background: #eff6ff !important;
+        }
+
+        .matching-item.matched.group-1 {
+            border-color: #10b981 !important;
+            /* Green */
+            background: #ecfdf5 !important;
+        }
+
+        .matching-item.matched.group-2 {
+            border-color: #8b5cf6 !important;
+            /* Purple */
+            background: #f5f3ff !important;
+        }
+
+        .matching-item.matched {
+            cursor: default;
+            opacity: 1;
+            /* Keep fully visible for color distinction */
+            pointer-events: none;
+        }
+
+        .matching-item.matched::after {
+            content: '✅';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 1.2rem;
+            background: white;
+            border-radius: 50%;
+            line-height: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Image Zoom Styles */
+        .matching-img-container {
+            position: relative;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .zoom-icon-btn {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            font-size: 1rem;
+            background: white;
+            border-radius: 50%;
+            padding: 4px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            z-index: 20;
+        }
+
+        .zoom-icon-btn:hover {
+            transform: scale(1.2);
+            background: #f1f5f9;
+        }
+
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .zoom-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            transform: scale(2.5);
+            /* Boosted zoom */
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .report-paper {
+            background: white;
+            padding: 60px;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 20px solid #f8fafc;
+            /* Wide outer frame */
+            outline: 2px solid #e2e8f0;
+            /* Thin inner line */
+            outline-offset: -12px;
+            background-image:
+                radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.03) 0%, transparent 20%);
+        }
+
+        /* Decorative Corners */
+        .report-paper::after {
+            content: '✨';
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .report-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #cbd5e1;
+            pointer-events: none;
+        }
+
+        .corner-tl {
+            top: 25px;
+            left: 25px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: 25px;
+            right: 25px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: 25px;
+            left: 25px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: 25px;
+            right: 25px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .report-paper .seal {
+            position: absolute;
+            bottom: 60px;
+            right: 60px;
+            width: 100px;
+            height: 100px;
+            border: 4px double rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: bold;
+            color: rgba(59, 130, 246, 0.4);
+            text-align: center;
+            transform: rotate(-15deg);
+            pointer-events: none;
+            border: 5px double rgba(59, 130, 246, 0.15);
+        }
+
+        .report-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading-animation {
+            width: 200px;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.1s linear;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .report-header h2 {
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -1px;
+            border-bottom: 4px solid var(--primary);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .report-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .report-section h4::before {
+            content: '';
+            width: 4px;
+            height: 1.2rem;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .feedback-msg.info {
+            background: #f0f9ff;
+            color: #0369a1;
+            border-color: #e0f2fe;
+        }
+
+        .quiz-short-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Comparison Chart Styles (Replaces Venn) */
+        .comp-chart-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            margin: 20px auto;
+            min-height: 450px;
+        }
+
+        .comp-column {
+            display: flex;
+            flex-direction: column;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .comp-column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .comp-column-header {
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #1e293b;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .comp-column.left .comp-column-header {
+            background: #6366f1;
+        }
+
+        .comp-column.center .comp-column-header {
+            background: #8b5cf6;
+        }
+
+        .comp-column.right .comp-column-header {
+            background: #ec4899;
+        }
+
+        .comp-column.left {
+            background: rgba(99, 102, 241, 0.03);
+            border-color: #c7d2fe;
+        }
+
+        .comp-column.center {
+            background: rgba(139, 92, 246, 0.03);
+            border-color: #ddd6fe;
+        }
+
+        .comp-column.right {
+            background: rgba(236, 72, 153, 0.03);
+            border-color: #fbcfe8;
+        }
+
+        .comp-block-list {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            max-height: 380px;
+        }
+
+        .venn-input {
+            width: 80%;
+            min-height: 100px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            text-align: center;
+            overflow-y: auto;
+            word-break: break-all;
+        }
+
+        .venn-center .venn-input {
+            min-height: 80px;
+        }
+
+        .reference-box:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .reference-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #854d0e;
+        }
+
+        #ref-keyword,
+        #ref-sentences {
+            color: #713f12;
+            padding-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .split-view {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+
+        /* Print Styles for PDF/Report Saving */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                width: 100%;
+                max-width: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            header,
+            .progress-container,
+            .header-row,
+            .text-center.mt-6,
+            .back-btn,
+            #game-stats {
+                display: none !important;
+            }
+
+            .screen {
+                padding: 0;
+                margin: 0;
+            }
+
+            .report-paper {
+                box-shadow: none;
+                border: 1px solid #eee;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+            }
+
+            .report-section {
+                page-break-inside: avoid;
+            }
+        }
+
+        .recommend-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .recommend-card:hover {
+            transform: scale(1.02);
+            background: #dcfce7;
+        }
+
+        .recommend-icon {
+            font-size: 2rem;
+        }
+
+        /* Global Navigation Tabs (띠지) Styles */
+        .global-nav {
+            position: absolute;
+            left: 100%;
+            top: 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .global-tab {
+            width: 45px;
+            height: 140px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
+            color: #64748b;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px 5px;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 3px;
+        }
+
+        .global-tab:hover {
+            width: 60px;
+            padding-left: 20px;
+            box-shadow: 6px 0 20px rgba(0, 0, 0, 0.12);
+        }
+
+        /* kitsch colors for global tabs */
+        .global-tab.quiz-tab {
+            border-color: #22c55e;
+            color: #15803d;
+            background: #f0fdf4;
+        }
+
+        .global-tab.quiz-tab:hover {
+            background: #22c55e;
+            color: white;
+        }
+
+        .global-tab.level-tab {
+            border-color: #3b82f6;
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+
+        .global-tab.level-tab:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .global-tab.report-tab {
+            border-color: #f59e0b;
+            color: #b45309;
+            background: #fffbeb;
+        }
+
+        .global-tab.report-tab:hover {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .global-tab .tab-icon {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            writing-mode: horizontal-tb;
+        }
+
+        @media (max-width: 1200px) {
+            .global-nav {
+                display: none;
+            }
+        }
+
+        /* Print Optimization */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                max-width: 100%;
+                border: none;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            header,
+            .no-print,
+            .side-nav,
+            #global-progress,
+            .back-btn,
+            #avatar-display {
+                display: none !important;
+            }
+
+            .screen {
+                display: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            #screen-report {
+                display: block !important;
+            }
+
+            .report-paper {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 30px !important;
+            }
+
+            .action-btn,
+            .text-center.mt-6.no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <h1>📝 설명하는 글 요약하기</h1>
+                <span id="level-badge" class="badge" style="display:none;"></span>
+            </div>
+
+            <div class="game-stats" id="game-stats" style="display:none;">
+                <div class="stat-item">
+                    <span class="avatar" id="avatar-display">😐</span>
+                </div>
+                <div class="stat-item">
+                    <span style="font-size:0.9rem; color:var(--muted-color);">점수</span>
+                    <strong id="score-display" style="font-size:1.2rem; color:var(--primary);">0</strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- Global Navigation Sidebar (Attached to Container Right) -->
+        <div class="global-nav no-print">
+            <div class="global-tab quiz-tab" onclick="showScreen('screen-quiz')">
+                <span class="tab-icon">🏁</span>복습퀴즈
+            </div>
+            <div class="global-tab level-tab" onclick="showScreen('screen-level')">
+                <span class="tab-icon">🚀</span>활동선택
+            </div>
+            <div class="global-tab report-tab" onclick="showScreen('screen-history')">
+                <span class="tab-icon">📜</span>내 보고서
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" id="global-progress" style="display:none; margin-bottom:20px;">
+            <div class="progress-bar" id="progress-bar"
+                style="background:#e2e8f0; height:10px; border-radius:5px; overflow:hidden;">
+                <div id="progress-indicator"
+                    style="height:100%; background:var(--primary); width:0%; transition:width 0.5s;"></div>
+            </div>
+        </div>
+
+        <div id="report-loading-overlay" class="report-loading-overlay">
+            <div class="loading-text" id="loading-main-text">보고서 생성 중...</div>
+            <div class="loading-animation">
+                <div class="loading-bar" id="report-loading-bar"></div>
+            </div>
+            <div class="loading-subtext" id="loading-sub-text">분석 데이터를 정리하고 있습니다.</div>
+        </div>
+
+        <!-- 1. Quiz Screen -->
+        <div id="screen-quiz" class="screen active">
+            <div class="header-row">
+                <div style="width:100px;"></div> <!-- Spacer -->
+                <h2 style="margin:0;">🧩 복습 퀴즈</h2>
+                <button class="action-btn secondary" style="width:auto; padding:8px 15px; font-size:0.9rem;"
+                    onclick="showScreen('screen-level')">활동으로 바로 가기 ➔</button>
+            </div>
+            <p class="text-center mb-6">설명하는 글의 구조를 잘 알고 있는지 확인해볼까요?</p>
+
+            <div id="quiz-container" style="max-width:850px; margin:0 auto;">
+                <!-- Dynamic Quiz Content -->
+            </div>
+            <center>
+                <div id="quiz-feedback" class="feedback-msg" style="max-width:850px;"></div>
+            </center>
+
+            <div id="quiz-next-btn-container" style="text-align:center; margin-top:20px; display:none;">
+                <button class="action-btn" onclick="nextQuiz()">다음 문제로 ➔</button>
+            </div>
+        </div>
+
+        <!-- 1.1 Activity Pledge (Announcement) -->
+        <div id="screen-pledge" class="screen">
+            <div class="header-row">
+                <button class="back-btn" onclick="showScreen('screen-quiz')">◀ 퀴즈로</button>
+                <h2 style="margin:0;">🌟 활동 준비하기</h2>
+                <div style="width:80px;"></div>
+            </div>
+            <div class="selection-card" style="max-width:600px; margin:40px auto; cursor:default; padding:40px;">
+                <h2 style="margin-bottom:20px;">🌟 이제 실제 글을 분석해볼 거예요!</h2>
+                <div
+                    style="background:#f1f5f9; padding:25px; border-radius:15px; margin-bottom:25px; text-align:left; line-height:1.7;">
+                    <p
+                        style="font-size:1.1rem; margin-bottom:15px; border-bottom:2px solid #cbd5e1; padding-bottom:10px;">
+                        우리는 배운 내용을 바탕으로 <strong>5가지 미션</strong>을 수행할 거예요.</p>
+                    <ul style="margin:10px 0; padding-left:20px; list-style-type: '✔️ ';">
+                        <li style="margin-bottom:8px;"><strong>1단계</strong>: 주제 찾기</li>
+                        <li style="margin-bottom:8px;"><strong>2단계</strong>: 중심문장 확인하기</li>
+                        <li style="margin-bottom:8px;"><strong>3단계</strong>: 표지어(키워드) 찾기</li>
+                        <li style="margin-bottom:8px;"><strong>4단계</strong>: 글의 구조 선택하기</li>
+                        <li style="margin-bottom:8px;"><strong>5단계</strong>: 구조 그림 완성하고 요약하기</li>
+                    </ul>
+                    <p style="margin-top:20px; color:#475569;">분석을 시작하기 전, 나의 멋진 <strong>다짐</strong>을 적어볼까요?</p>
+                </div>
+
+                <textarea id="pledge-input" placeholder="예: 글을 꼼꼼하게 읽고 정확하게 요약해 보겠어! 🔥"
+                    style="width:100%; height:120px; padding:15px; border-radius:10px; border:2px solid #e2e8f0; font-size:1.05rem; margin-bottom:25px; font-family:inherit; resize:none;"></textarea>
+
+                <button class="action-btn" style="width:100%; padding:15px;" onclick="finishPledge()">활동 시작하기
+                    🚀</button>
+            </div>
+        </div>
+
+        <!-- 2. Level Selection -->
+        <div id="screen-level" class="screen">
+            <div class="header-row">
+                <button class="back-btn" onclick="showScreen('screen-quiz')">◀ 퀴즈로</button>
+                <h2 style="margin:0;">🚀 도전할 단계를 선택하세요</h2>
+                <div style="width:80px;"></div> <!-- Spacer -->
+            </div>
+            <div class="card-grid">
+                <div class="selection-card" onclick="startGame('beginner')">
+                    <div class="card-icon">🐣</div>
+                    <h3>초급</h3>
+                    <p>짧은 글, 쉬운 구조</p>
+                </div>
+                <div class="selection-card" onclick="startGame('intermediate')">
+                    <div class="card-icon">🏃</div>
+                    <h3>중급</h3>
+                    <p>문단이 있는 글</p>
+                </div>
+                <div class="selection-card" onclick="startGame('advanced')">
+                    <div class="card-icon">🧗</div>
+                    <h3>상급</h3>
+                    <p>복잡한 구조의 긴 글</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Main Game Area (5 Steps) -->
+        <div id="screen-game" class="screen">
+            <div class="header-row">
+                <button class="back-btn" onclick="showScreen('screen-level')">◀ 레벨 선택</button>
+                <h2 style="margin:0;" id="game-title-step">글 분석하기</h2>
+                <div style="width:80px;"></div> <!-- Spacer -->
+            </div>
+
+            <div class="game-layout-container">
+                <div class="split-view" style="flex:1;">
+                    <!-- Text Area (Left) -->
+                    <div class="text-panel-header"
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-weight:bold; color:var(--primary);">📖 본문 읽기</span>
+                    </div>
+                    <div class="text-panel" id="text-panel"
+                        style="background:#fff; border-radius:12px; padding:30px; border:1px solid #e2e8f0; margin-bottom:20px;">
+                        <!-- Dynamic Text Content with Hints -->
+                    </div>
+
+                    <!-- Interaction Area (Right) -->
+                    <!-- Interaction Area (Right) -->
+                    <!-- Unified Activity Panel -->
+                    <div class="activity-panel" id="activity-panel"
+                        style="display:flex; flex-direction:column; gap:20px;">
+                        <div id="game-step-content" class="step-content"
+                            style="display:block; background:white; border:1px solid #e2e8f0; border-radius:12px; padding:20px;">
+                            <!-- Content dynamically swapped between structure selection and diagram builder -->
+                        </div>
+
+                        <div id="step-feedback" class="feedback-msg"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Report Screen -->
+        <div id="screen-report" class="screen">
+            <div class="header-row">
+                <button class="back-btn" onclick="showScreen('screen-level')">◀ 레벨 선택</button>
+                <h2 style="margin:0;">🎉 미션 성공! 학습 보고서</h2>
+                <div style="width:80px;"></div>
+            </div>
+            <div class="report-paper">
+                <!-- Decorative Elements -->
+                <div class="report-corner corner-tl"></div>
+                <div class="report-corner corner-tr"></div>
+                <div class="report-corner corner-bl"></div>
+                <div class="report-corner corner-br"></div>
+                <div class="seal">미션<br>성공</div>
+
+                <div class="report-header"
+                    style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h2 style="margin:0; color:var(--primary-dark);">📑 독해 분석 결과 보고서</h2>
+                    <div class="final-score" style="font-size:1.5rem; font-weight:bold; color:var(--primary);">총점: <span
+                            id="final-score-display">0</span>점</div>
+                </div>
+                <div style="font-size:0.9rem; color:#64748b; margin-bottom:20px; text-align:right;">
+                    학습 일시: <span id="report-date"></span> | 레벨: <span id="report-level-text"></span>
+                </div>
+                <hr style="margin-bottom:25px; border:1px solid #f1f5f9;">
+                <div class="report-section" style="margin-bottom:30px;">
+                    <h4 style="margin-bottom:10px; color:var(--primary-dark); font-size:1.1rem;">1. 분석한 본문</h4>
+                    <div id="report-text" class="text-panel"
+                        style="background:#fcfdfd; border:1px solid #eef2f6; padding:15px; font-size:0.95rem; border-radius:10px;">
+                    </div>
+                </div>
+                <div class="report-section" style="margin-bottom:30px;">
+                    <h4 style="margin-bottom:10px; color:var(--primary-dark); font-size:1.1rem;">2. 글의 구조 및 선택 이유</h4>
+                    <div
+                        style="background:#eff6ff; border:1px solid #dbeafe; padding:15px; border-radius:10px; font-size:0.95rem;">
+                        <span style="font-weight:bold; color:#1e40af;">선택한 구조:</span> <span
+                            id="report-structure-name"></span><br>
+                        <span style="font-weight:bold; color:#1e40af;">선택한 이유:</span> <span id="report-structure-reason"
+                            style="color:#1d4ed8;"></span>
+                    </div>
+                </div>
+                <div class="report-section" style="margin-bottom:30px;">
+                    <h4 style="margin-bottom:10px; color:var(--primary-dark); font-size:1.1rem;">3. 글의 구조 분석 (도해조직자)
+                    </h4>
+                    <div style="background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #e2e8f0;">
+                        <p style="margin-bottom:10px; font-weight:bold;">분석 구조: <span id="report-structure"
+                                style="color:var(--primary);"></span></p>
+                        <div id="report-diagram-view" style="transform: scale(0.95); transform-origin: top center;">
+                        </div>
+                    </div>
+                </div>
+                <!-- Final Summary Section in Report -->
+                <div class="report-section" style="margin-bottom:30px;">
+                    <h4 style="margin-bottom:10px; color:var(--primary-dark); font-size:1.1rem;">4. 나의 최종 요약</h4>
+                    <div id="report-user-summary"
+                        style="background:#fffbeb; border:1px solid #fef3c7; padding:20px; border-radius:12px; font-size:1rem; color:#92400e; line-height:1.8; white-space:pre-wrap;">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+            </div>
+            <!-- Recommendations Section -->
+            <div class="report-section" style="margin-top:40px; border-top: 2px solid #f1f5f9; padding-top:20px;">
+                <h3 id="report-summary-title"
+                    style="margin-top:0; border-bottom:2px solid #e2e8f0; padding-bottom:8px; color:var(--primary-dark);">
+                    5. 오늘 배운 내용과 소감을 간단하게 적어보세요.</h3>
+                <h4 style="margin-bottom:15px; color:var(--primary-dark);">🌟 나에게 맞는 추천 활동</h4>
+                <div id="report-recommendations" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- Dynamically filled -->
+                </div>
+            </div>
+
+            <div class="report-export-buttons no-print">
+                <button class="action-btn"
+                    style="width:auto; background: #059669; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);"
+                    onclick="exportReport('jpg')">📥 이미지로 저장 (JPG)</button>
+                <button class="action-btn"
+                    style="width:auto; background: #0891b2; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);"
+                    onclick="exportReport('pdf')">📄 PDF로 저장 / 인쇄</button>
+                <button class="action-btn secondary" style="width:auto; background: #64748b; color: white;"
+                    onclick="location.reload()">💾 저장 후 처음으로</button>
+            </div>
+        </div> <!-- End screen-report -->
+
+        <!-- 5. History Screen -->
+        <div id="screen-history" class="screen">
+            <div class="header-row">
+                <button class="back-btn" onclick="showScreen('screen-level')">◀ 레벨 선택</button>
+                <h2 style="margin:0;">📜 내가 만든 보고서</h2>
+                <div style="width:80px;"></div>
+            </div>
+            <p class="text-center mb-6">지금까지 분석한 나의 기록들을 모아보세요.</p>
+
+            <div id="history-empty" style="text-align:center; padding:50px; display:none;">
+                <div style="font-size:4rem; margin-bottom:20px;">🏜️</div>
+                <h3 style="color:#64748b;">아직 저장된 보고서가 없어요.</h3>
+                <p style="color:#94a3b8; margin-top:10px;">활동을 완료하고 멋진 보고서를 만들어보세요!</p>
+                <button class="action-btn" style="width:auto; margin-top:30px; padding:12px 30px;"
+                    onclick="showScreen('screen-level')">활동 시작하기 ➔</button>
+            </div>
+
+            <div id="history-list" class="card-grid" style="margin-top:20px;">
+                <!-- Saved reports will be listed here -->
+            </div>
+
+            <div style="text-align:center; margin-top:40px;" class="no-print">
+                <button class="action-btn secondary" style="width:auto; padding:10px 20px;" onclick="clearHistory()">기록
+                    모두 지우기 🗑️</button>
+            </div>
+        </div>
+    </div> <!-- End container -->
+
+
+    <div id="image-zoom-modal" class="zoom-modal" style="display: none;" onclick="this.style.display='none'">
+        <img id="zoomed-image" src="">
+    </div>
+
+    <script>
+        /* [DATA] --------------------------------------------- */
+        const QuizData = [
+            {
+                type: 'short-answer',
+                q: "1. 설명하는 글의 구조에는 어떤 것이 있었나요? (3가지를 모두 적어보세요)",
+                answers: ["열거", "순서", "비교,대조"],
+                initialHints: "ㅇㄱ, ㅅㅅ, ㅂㄱ 와 ㄷㅈ",
+                explanation: "설명하는 글의 대표적인 구조는 열거 구조, 순서 구조, 비교와 대조 구조가 있습니다."
+            },
+            {
+                type: 'drag-table',
+                q: "2. 각 도해조직자에 알맞은 설명하는 글의 구조와 그에 대한 설명을 드래그 하여 표를 완성하시오.",
+                items: [
+                    { id: 'enum', title: "열거 구조", graphic: "media__1771412640081.png", desc: "특징이나 장점 등을 나열함" },
+                    { id: 'seq', title: "순서 구조", graphic: "media__1771412699401.png", desc: "시간이나 과정의 순서대로 설명함" },
+                    { id: 'comp', title: "비교와 대조", graphic: "media__1771412769838.png", desc: "공통점과 차이점을 중심으로 설명함" }
+                ],
+                explanation: "도해조직자의 모양을 보고 어떤 구조인지, 어떤 특징이 있는지 연결해 보세요."
+            }
+        ];
+
+        /* Texts are grouped by Level. */
+        const GameData = {
+            beginner: [
+                {
+                    type: 'enum',
+                    keyword: '자석',
+                    title: '자석의 성질과 이용',
+                    paragraphs: [
+                        { text: "  자석은 우리 생활 곳곳에서 쓰이고 있습니다. 자석이 어디에 쓰이는지 살펴봅시다.", mainSentenceIndex: 0 },
+                        { text: "  첫째, 자석은 냉장고 문에 쓰입니다. 냉장고 문 테두리 안쪽에는 가느다란 자석이 들어 있습니다. 이 자석 덕분에 냉장고 문이 딱 달라붙어 닫히고, 찬 공기가 밖으로 나오지 않습니다.", mainSentenceIndex: 0 },
+                        { text: "  둘째, 자석은 필통이나 가방의 잠금장치에 쓰입니다. 단추처럼 생긴 자석 두 개가 서로 붙는 힘을 이용해 뚜껑이나 덮개를 여닫을 수 있습니다. 지퍼보다 간편하게 열고 닫을 수 있어서 편리합니다.", mainSentenceIndex: 0 },
+                        { text: "  셋째, 자석은 스피커 안에도 들어 있습니다. 스피커는 자석과 코일이 함께 움직이며 소리를 만들어 냅니다. 우리가 음악을 듣거나 영상의 소리를 들을 수 있는 것도 자석 덕분입니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 자석은 냉장고, 가방, 스피커 등 우리 생활의 여러 곳에서 중요한 역할을 하고 있습니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'seq',
+                    keyword: '봉숭아',
+                    title: '봉숭아 키우기',
+                    paragraphs: [
+                        { text: "  봉숭아는 키우기 쉬운 식물입니다. 순서대로 따라 하면 누구나 봉숭아를 키울 수 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  먼저, 씨앗을 심을 준비를 합니다. 화분에 흙을 3분의 2 정도 채운 뒤, 손가락으로 1센티미터 깊이의 구멍을 두세 개 만듭니다. 구멍마다 씨앗을 한두 개씩 넣고 흙으로 살살 덮어 줍니다.", mainSentenceIndex: 0 },
+                        { text: "  다음으로, 물을 주고 햇빛이 잘 드는 곳에 놓아 둡니다. 흙이 마르지 않도록 하루에 한 번 물을 줍니다. 너무 많이 주면 씨앗이 썩을 수 있으므로 흙이 촉촉한 정도가 적당합니다.", mainSentenceIndex: 0 },
+                        { text: "  그다음으로, 싹이 트면 튼튼한 싹만 남기고 나머지는 솎아 줍니다. 싹이 서로 너무 가까이 있으면 잘 자라지 못하기 때문입니다. 솎아 낸 자리의 흙을 손가락으로 살짝 눌러 고르게 해 줍니다.", mainSentenceIndex: 0 },
+                        { text: "  마지막으로, 꾸준히 물을 주며 기다리면 4~6주 뒤에 꽃이 핍니다. 붉고 분홍빛의 봉숭아꽃이 피면, 꽃잎을 따서 손톱을 물들이는 전통 놀이도 즐길 수 있습니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'comp',
+                    keyword: '도서관',
+                    title: '도서관과 서점',
+                    paragraphs: [
+                        { text: "  우리 주변에서 도서관과 서점을 쉽게 볼 수 있습니다. 두 곳 모두 책과 친해질 수 있는 곳이지만, 서로 다른 점도 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  먼저, 도서관과 서점은 다양한 종류의 책을 갖추고 있다는 점에서 같습니다. 그림책, 소설, 과학책 등 여러 분야의 책이 있고, 조용한 환경에서 책을 읽을 수 있다는 점도 공통점입니다.", mainSentenceIndex: 0 },
+                        { text: "  반면에, 도서관은 책을 빌려 보는 곳입니다. 회원증을 만들면 돈을 내지 않고 책을 집에 가져가서 읽을 수 있고, 다 읽은 후에는 다시 돌려주면 됩니다.", mainSentenceIndex: 0 },
+                        { text: "  이와 달리, 서점은 책을 사는 곳입니다. 도서관에는 오래된 책이나 공부할 때 필요한 책들이 많은 반면, 서점에는 요즘 새로 나온 책들을 바로 만나볼 수 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 도서관과 서점은 책을 가까이할 수 있다는 점에서는 같지만, 이용 방법과 책의 종류에서는 서로 다릅니다. 두 곳의 특징을 잘 알고 상황에 맞게 이용하면 책과 더 친해질 수 있습니다.", mainSentenceIndex: 0 }
+                    ]
+                }
+            ],
+            intermediate: [
+                {
+                    type: 'enum',
+                    keyword: '생태계',
+                    title: '생태계의 구성과 역할',
+                    paragraphs: [
+                        { text: "  우리가 사는 지구에는 수많은 생물들이 서로 영향을 주고받으며 살아가고 있습니다. 생태계가 균형을 이루며 유지될 수 있는 것은 각 생물들이 저마다 맡은 역할을 다하기 때문입니다. 생태계를 구성하는 생물들은 크게 생산자, 소비자, 분해자로 나눌 수 있으며, 각각의 역할을 살펴보면 다음과 같습니다.", mainSentenceIndex: 0 },
+                        { text: "  첫째, 생산자는 햇빛을 이용하여 스스로 양분을 만드는 생물입니다. 풀, 나무, 수련, 해조류와 같은 식물이 대표적인 생산자입니다. 이들은 광합성을 통해 이산화 탄소와 물을 양분으로 바꾸고, 이 과정에서 산소를 내보냅니다. 생산자가 만들어 낸 양분은 생태계의 모든 생물들이 살아가는 데 필요한 에너지의 출발점이 됩니다.", mainSentenceIndex: 0 },
+                        { text: "  둘째, 소비자는 다른 생물을 먹어서 양분을 얻는 생물입니다. 식물을 직접 먹는 토끼, 메뚜기, 사슴과 같은 초식 동물은 1차 소비자라고 합니다. 이 초식 동물을 잡아먹는 여우, 개구리, 뱀 같은 육식 동물은 2차 소비자입니다. 이처럼 소비자들은 먹고 먹히는 먹이 사슬을 이루며 서로 연결되어 있습니다. 만약 한 종류의 소비자가 지나치게 늘어나거나 줄어들면 생태계 전체의 균형이 무너질 수 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  셋째, 분해자는 죽은 생물이나 배설물을 분해하여 자연으로 돌려보내는 생물입니다. 버섯, 곰팡이, 세균 등이 대표적인 분해자입니다. 분해자가 없다면 생물의 사체와 배설물이 지구에 계속 쌓여 생태계가 순환되지 못할 것입니다. 분해자가 유기물을 무기물로 되돌려 놓아야 비로소 식물이 다시 그 물질을 흡수하여 양분을 만들 수 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 생산자, 소비자, 분해자는 각각 다른 역할을 맡고 있지만, 서로 촘촘히 연결되어 생태계를 지탱합니다. 어느 하나라도 사라진다면 생태계의 균형은 깨질 수밖에 없습니다. 우리가 환경을 보호해야 하는 이유도 바로 이 연결 고리를 지키기 위해서입니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'seq',
+                    keyword: '법',
+                    title: '법이 만들어지는 과정',
+                    paragraphs: [
+                        { text: "  우리 사회에는 교통 신호를 지켜야 한다거나, 쓰레기를 함부로 버리면 안 된다는 등 수많은 규칙이 있습니다. 이러한 규칙 가운데 국가가 공식적으로 정한 것을 법이라고 합니다. 그렇다면 우리가 지켜야 하는 법은 어떤 과정을 거쳐 만들어질까요?", mainSentenceIndex: 0 },
+                        { text: "  먼저, 법이 필요하다는 의견이 모입니다. 사회 문제가 생기거나 새로운 규칙이 필요하다고 느낀 국민들이 의견을 제시하면, 국민이 직접 선출한 대표인 국회의원이 그 의견을 모아 법의 초안을 작성합니다. 이것을 법률안이라고 합니다. 국회의원 한 명이 대표로 발의하거나 여러 명이 함께 발의할 수 있으며, 정부에서 제출하기도 합니다.", mainSentenceIndex: 0 },
+                        { text: "  다음으로, 국회에서 법률안을 심사하고 토론합니다. 제출된 법률안은 관련 분야 전문가들로 구성된 상임위원회에서 먼저 꼼꼼히 검토됩니다. 법의 내용이 헌법에 어긋나지는 않는지, 국민에게 불이익을 주지는 않는지 등을 따집니다. 필요하다면 전문가나 시민의 의견을 듣는 공청회를 열기도 합니다.", mainSentenceIndex: 0 },
+                        { text: "  그다음으로, 국회 본회의에서 투표를 통해 의결합니다. 상임위원회의 심사를 통과한 법률안은 국회의원 전체가 모인 본회의에 올라갑니다. 재적 의원 과반수가 출석하고, 출석 의원 과반수가 찬성하면 법률안이 통과됩니다. 이 과정에서 의원들은 법이 국민 전체에게 이로운지를 신중하게 따져 투표합니다.", mainSentenceIndex: 0 },
+                        { text: "  이어서, 통과된 법률안은 대통령이 서명하고 공포합니다. 국회를 통과한 법률안은 행정부의 수반인 대통령에게 전달됩니다. 대통령이 서명하면 법률로 확정되며, 관보에 실어 국민에게 알리는 것을 공포라고 합니다. 만약 대통령이 법안에 문제가 있다고 판단하면 국회에 다시 검토해 달라고 요청할 수 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  마지막으로, 공포된 법은 일정 기간이 지난 후 시행됩니다. 법이 공포되자마자 바로 적용되는 것이 아니라, 국민이 새로운 법을 알고 준비할 수 있도록 일정한 기간을 둔 뒤에 효력이 발생합니다. 이후 법이 제대로 지켜지는지, 사회 변화에 맞게 고칠 부분은 없는지를 지속적으로 살펴보며 필요하면 개정하기도 합니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 법은 국민의 의견에서 출발하여 국회의 심사와 의결, 대통령의 공포라는 여러 단계를 거쳐 완성됩니다. 이 복잡한 절차가 있기에 법이 함부로 만들어지거나 바뀌지 않고, 국민의 권리와 생활을 안정적으로 보호할 수 있습니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'comp',
+                    keyword: '도시',
+                    title: '도시와 촌락의 생활',
+                    paragraphs: [
+                        { text: "  우리나라 사람들은 저마다 다른 환경에서 생활합니다. 어떤 사람들은 빌딩이 빽빽한 도시에서 살고, 어떤 사람들은 논밭과 바다가 가까운 촌락에서 삽니다. 도시와 촌락은 모두 사람들이 모여 사는 공간이지만, 그 모습과 생활 방식에는 공통점과 차이점이 함께 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  먼저 두 지역의 공통점을 살펴보면, 도시와 촌락 모두 사람들이 일을 하고 여가를 즐기며 함께 살아가는 생활 공간입니다. 학교, 병원, 시장 등 기본적인 생활 시설이 갖추어져 있으며, 주민들이 지역 문제를 해결하기 위해 지방 자치 단체를 통해 스스로 지역을 운영한다는 점도 같습니다.", mainSentenceIndex: 0 },
+                        { text: "  그러나 두 지역은 여러 면에서 뚜렷하게 다릅니다. 우선 인구와 땅의 이용 방식이 다릅니다. 도시는 좁은 땅에 많은 사람이 모여 살기 때문에 아파트, 오피스 빌딩, 상업 시설 등이 밀집해 있습니다. 반면, 촌락은 인구가 적고 땅이 넓어 논, 밭, 어장, 목장처럼 자연을 직접 이용하는 공간이 많습니다.", mainSentenceIndex: 0 },
+                        { text: "  다음으로 주민들의 주요 직업이 다릅니다. 도시 주민들은 회사원, 공무원, 서비스업 종사자처럼 2차·3차 산업에 종사하는 경우가 많습니다. 이에 비해 촌락 주민들은 농업, 어업, 임업처럼 자연에서 직접 생산물을 얻는 1차 산업에 종사하는 비율이 높습니다.", mainSentenceIndex: 0 },
+                        { text: "  생활 편의 시설과 인구 변화의 측면에서도 차이가 있습니다. 도시는 교통, 의료, 문화 시설이 풍부해 생활이 편리하지만, 인구가 집중되어 교통 혼잡, 환경 오염, 높은 집값 등의 문제가 생기기도 합니다. 반면, 촌락은 자연환경이 쾌적하고 지역 공동체 의식이 강하지만, 젊은 인구가 일자리를 찾아 도시로 떠나면서 인구가 점점 줄어드는 문제를 겪고 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 도시와 촌락은 사람들이 함께 살아간다는 공통점을 가지면서도, 환경과 직업, 생활 방식에서 뚜렷한 차이를 보입니다. 어느 지역이 더 낫다고 단정할 수는 없으며, 두 지역이 서로 부족한 부분을 채워 주고 교류하면서 균형 있게 발전하는 것이 중요합니다.", mainSentenceIndex: 0 }
+                    ]
+                }
+            ],
+            advanced: [
+                {
+                    type: 'enum',
+                    keyword: '날씨',
+                    title: '날씨와 우리 생활',
+                    paragraphs: [
+                        { text: "  우리는 매일 아침 창문을 열어 날씨를 확인하거나 일기 예보를 찾아봅니다. 날씨에 따라 그날 입을 옷을 고르고, 가져갈 물건을 챙기고, 하루 계획을 바꾸기도 합니다. 이처럼 날씨는 우리 생활의 거의 모든 부분에 영향을 미칩니다. 날씨가 우리 생활을 어떻게 바꾸는지 여러 측면에서 살펴보겠습니다.", mainSentenceIndex: 0 },
+                        { text: "  첫째, 날씨는 우리가 입는 옷에 영향을 줍니다. 기온이 높고 햇볕이 강한 여름에는 땀 흡수가 잘 되는 얇고 밝은 색 옷을 입습니다. 반면 기온이 뚝 떨어지는 겨울에는 체온을 유지하기 위해 두꺼운 옷을 여러 겹 껴입습니다. 비가 올 때는 우산이나 비옷을 준비하고, 바람이 강한 날에는 모자가 날아가지 않도록 조심합니다. 이처럼 날씨가 달라지면 사람들이 입는 옷의 종류와 두께도 달라집니다.", mainSentenceIndex: 0 },
+                        { text: "  둘째, 날씨는 농업과 어업에 큰 영향을 미칩니다. 농사를 짓는 농부들은 씨앗을 심거나 수확하는 시기를 날씨에 맞춰 결정합니다. 봄에 따뜻한 날씨가 이어져야 모가 잘 자라고, 여름에 적당한 비가 내려야 벼가 튼튼하게 자랍니다. 태풍이나 가뭄이 닥치면 한 해 농사를 망칠 수도 있습니다. 바다에서 일하는 어부들도 마찬가지입니다. 파도가 높거나 안개가 짙은 날에는 배를 바다에 내보내기 어렵습니다. 날씨가 좋아야 안전하게 물고기를 잡을 수 있기 때문에, 어부들은 날씨 예보를 매우 중요하게 생각합니다.", mainSentenceIndex: 0 },
+                        { text: "  셋째, 날씨는 교통과 이동에도 영향을 줍니다. 폭설이 내리면 도로가 미끄러워져 자동차 사고가 늘어나고, 항공기나 기차가 지연되거나 취소되기도 합니다. 장마철 집중 호우에는 하천이 범람하거나 도로가 물에 잠겨 이동 자체가 불가능해지는 경우도 생깁니다. 태풍이 오면 강풍 때문에 비행기가 결항되고, 항구에 정박해 있던 배들도 출항하지 못합니다. 이처럼 날씨가 나빠지면 사람들의 이동과 물건의 운송이 모두 어려워집니다.", mainSentenceIndex: 0 },
+                        { text: "  넷째, 날씨는 사람들의 건강에도 영향을 미칩니다. 봄철에는 건조한 날씨와 강한 바람 때문에 황사와 꽃가루가 날려 알레르기나 호흡기 질환이 늘어납니다. 한여름 폭염이 이어지면 체온 조절이 어려워져 열사병이 생기기도 하고, 음식이 쉽게 상해 식중독 사고도 증가합니다. 반대로 기온이 뚝 떨어지는 한겨울에는 면역력이 약해져 감기나 독감에 걸리기 쉽습니다. 그래서 날씨 변화에 따라 건강을 챙기는 방법도 달라져야 합니다.", mainSentenceIndex: 0 },
+                        { text: "  다섯째, 날씨는 사람들이 여가를 즐기는 방식에도 영향을 줍니다. 맑고 따뜻한 날에는 가족과 함께 공원을 나들이하거나 자전거를 타는 사람들이 많아집니다. 겨울에 눈이 많이 쌓이면 스키장이나 눈썰매장을 찾는 사람들로 북적입니다. 반면 비가 오거나 미세 먼지가 심한 날에는 야외 활동이 줄고, 실내에서 즐길 수 있는 활동을 찾게 됩니다. 날씨는 우리가 쉬고 노는 방식까지 바꾸어 놓습니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 날씨는 옷차림, 농업과 어업, 교통, 건강, 여가에 이르기까지 우리 생활 전반에 걸쳐 깊이 연결되어 있습니다. 날씨를 단순히 맑고 흐리고의 문제로만 볼 것이 아니라, 우리 삶과 함께 숨 쉬는 중요한 환경 조건으로 이해할 필요가 있습니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'seq',
+                    keyword: '지층',
+                    title: '지층과 화석의 형성',
+                    paragraphs: [
+                        { text: "  산을 깎아 만든 도로 옆 절벽이나 강가의 낭떠러지를 자세히 살펴보면, 흙과 모래, 자갈이 층층이 쌓여 줄무늬처럼 보이는 것을 발견할 수 있습니다. 이것이 바로 지층입니다. 그리고 그 지층 안에서는 아주 오래전에 살았던 생물의 흔적인 화석이 발견되기도 합니다. 지층과 화석은 오랜 시간에 걸쳐 만들어지는데, 그 과정을 순서대로 살펴보겠습니다.", mainSentenceIndex: 0 },
+                        { text: "  먼저, 강이나 바다에 모래와 자갈, 진흙이 쌓이기 시작합니다. 비가 내리면 산과 들에 있는 흙과 돌이 강물에 쓸려 내려옵니다. 강물의 흐름이 느려지는 강 하류나 바다에 이르면 이 물질들이 바닥에 가라앉아 층층이 쌓입니다. 가볍고 고운 진흙은 위쪽에, 무겁고 굵은 자갈은 아래쪽에 쌓이면서 서로 다른 성질의 층이 만들어집니다.", mainSentenceIndex: 0 },
+                        { text: "  다음으로, 생물이 죽어 퇴적물 속에 묻힙니다. 강이나 바다에 살던 물고기, 조개, 나뭇잎 등의 생물이 죽으면 바닥으로 가라앉아 모래나 진흙 속에 묻히게 됩니다. 생물의 몸이 완전히 사라지기 전에 퇴적물이 위를 덮어야 화석이 될 가능성이 높아집니다. 따라서 화석은 육지보다 물속에서 더 잘 만들어집니다.", mainSentenceIndex: 0 },
+                        { text: "  그다음으로, 오랜 시간이 지나면서 퇴적물이 단단한 암석으로 변합니다. 모래와 진흙이 계속해서 위에 쌓이면, 아래에 있는 층은 엄청난 무게에 눌립니다. 이 압력으로 인해 퇴적물 사이의 물이 빠져나가고, 입자들이 서로 단단히 굳어 퇴적암이 됩니다. 이 과정은 수백만 년에서 수천만 년에 걸쳐 일어납니다. 생물의 딱딱한 부분인 뼈, 껍데기, 이빨 등은 이 암석 속에서 광물로 천천히 대체되어 화석이 됩니다.", mainSentenceIndex: 0 },
+                        { text: "  이어서, 땅속 깊이 있던 지층이 지표면 가까이로 올라옵니다. 오랜 세월 동안 지구 내부의 힘이 작용하면서 지층이 휘어지거나 끊어지기도 하고, 화산 활동과 같은 지각 변동으로 땅이 솟아오르기도 합니다. 본래 물속에 쌓였던 지층이 이러한 변화를 거쳐 육지의 산이나 들판이 되는 경우도 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  마지막으로, 지표면 가까이 올라온 지층이 깎이면서 화석이 드러납니다. 오랜 시간 동안 빗물과 바람, 강물이 지층의 표면을 조금씩 깎아 냅니다. 이를 풍화와 침식이라고 합니다. 이 과정에서 땅속 깊이 숨어 있던 화석이 지표면으로 나오게 됩니다. 과학자들은 이렇게 드러난 화석을 발굴하여 오래전 생물의 생김새, 크기, 살았던 환경 등을 밝혀냅니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 지층과 화석은 퇴적, 매몰, 암석화, 지각 변동, 침식이라는 긴 과정을 거쳐 만들어집니다. 우리가 박물관에서 보는 공룡 화석 하나에는 수천만 년의 시간이 담겨 있습니다. 지층과 화석은 단순한 돌덩이가 아니라, 지구의 오랜 역사를 기록한 소중한 증거입니다.", mainSentenceIndex: 0 }
+                    ]
+                },
+                {
+                    type: 'comp',
+                    keyword: '고장',
+                    title: '산지 고장과 평야 고장',
+                    paragraphs: [
+                        { text: "  우리나라는 좁은 국토 안에서도 지역마다 생김새가 무척 다릅니다. 강원도처럼 높고 험한 산이 많은 곳이 있는가 하면, 전라도처럼 넓고 평평한 들판이 펼쳐진 곳도 있습니다. 이처럼 고장의 지형이 다르면 그곳에 사는 사람들의 생활 모습도 크게 달라집니다. 산이 많은 고장과 평야이 넓은 고장은 어떤 공통점과 차이점이 있는지 살펴보겠습니다.", mainSentenceIndex: 0 },
+                        { text: "  두 고장의 공통점을 먼저 살펴보면, 산지 고장과 평야 고장 모두 자연환경을 이용하여 사람들이 삶을 꾸려 나간다는 점에서 같습니다. 두 곳 모두 마을과 학교, 시장이 있고, 주민들이 서로 도우며 공동체를 이루고 삽니다. 또한 계절의 영향을 받으며 봄에 씨를 뿌리고 가을에 수확하는 농사와 관련된 생활이 이루어진다는 공통점도 있습니다.", mainSentenceIndex: 0 },
+                        { text: "  그러나 땅의 생김새에 따라 두 고장의 생활 모습은 여러 면에서 뚜렷하게 달라집니다. 우선 주요 산업과 생산물이 다릅니다. 산지 고장에서는 경사진 땅에 밭을 일구어 감자, 옥수수, 배추처럼 서늘한 날씨에 잘 자라는 작물을 주로 재배합니다. 울창한 숲에서 나무를 베거나 버섯, 산나물을 채취하는 일도 활발합니다. 반면 평야 고장에서는 넓고 평평한 논에서 쌀을 대량으로 재배하거나, 비닐하우스를 이용해 채소와 과일을 사계절 내내 생산합니다. 들판이 넓어 기계를 이용한 농사도 훨씬 수월합니다.", mainSentenceIndex: 0 },
+                        { text: "  다음으로 교통과 마을의 형태가 다릅니다. 산지 고장은 험한 산과 계곡이 많아 도로를 놓기 어렵고, 마을들이 골짜기마다 흩어져 있는 경우가 많습니다. 과거에는 마을 사이를 오가는 것 자체가 힘든 일이었고, 지금도 구불구불한 산길을 한참 달려야 이웃 마을에 닿는 경우가 있습니다. 이에 비해 평야 고장은 땅이 평평해 길을 내기 쉬워서 도로망이 잘 발달되어 있습니다. 사람과 물자의 이동이 편리하기 때문에 큰 시장이나 상업 지역이 들어서기도 쉽습니다.", mainSentenceIndex: 0 },
+                        { text: "  여가 활동과 축제 문화에서도 차이가 납니다. 산지 고장에서는 래프팅, 등산, 스키, 눈썰매처럼 산과 계곡을 활용한 야외 활동과 체험이 발달해 있습니다. 높은 산과 맑은 계곡이 관광 자원이 되어 매년 많은 방문객이 찾아오기도 합니다. 반면 평야 고장에서는 드넓은 논밭에서 펼쳐지는 농촌 체험이나 수확 축제가 유명합니다. 드넓은 평야를 배경으로 한 연꽃 축제, 딸기 축제, 황금 들녘 사진 촬영 행사 같은 문화 활동이 활발하게 열립니다.", mainSentenceIndex: 0 },
+                        { text: "  생활의 어려움이라는 측면에서도 두 고장은 다른 문제를 안고 있습니다. 산지 고장은 교통이 불편하고 의료 시설이나 문화 시설에 접근하기 어려운 경우가 있습니다. 또 산사태나 폭설 같은 자연재해의 피해를 입기도 합니다. 평야 고장은 홍수나 가뭄으로 농작물 피해를 입는 일이 많고, 인구가 도시로 빠져나가며 빈 농촌이 늘어나는 문제를 겪기도 합니다.", mainSentenceIndex: 0 },
+                        { text: "  이처럼 산지 고장과 평야 고장은 자연환경을 바탕으로 생활한다는 공통점을 가지면서도, 산업, 교통, 여가, 생활의 어려움에 이르기까지 여러 면에서 서로 다른 모습을 보입니다. 두 고장은 어느 쪽이 더 낫고 못하다고 할 수 없으며, 저마다의 환경에 맞게 발전해 온 소중한 삶의 터전입니다. 서로 다른 고장의 모습을 이해하고 존중하는 태도가 필요합니다.", mainSentenceIndex: 0 }
+                    ]
+                }
+            ]
+        };
+
+        /* [STATE & GLOBALS] ---------------------------------- */
+        let AppState = {
+            score: 0,
+            quizIdx: 0,
+            quizSelectedAnswer: -1,
+            level: '',
+            currentText: null,
+            currentSentences: [],
+            paragraphNumbers: [],
+            nextParaNum: 1,
+            foundMainSentences: 0,
+            currentStep: 0,
+            diagramItems: [],
+            currentStructureType: '',
+            userKeyword: '', // Step 1: Topic word
+            selectedMarkers: [], // Step 3: Structural cues/markers
+            hintLevel: 0, // 0: None, 1: Topic, 2: Main Sentences, 3: Markers
+            userSummary: "", // Step 5 supplement: Overall summary
+            reasonForStructure: "" // Step 4 supplement: Why this structure?
+        };
+
+        /* [UI HELPERS] --------------------------------------- */
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+
+            // Layout Adjustments
+            if (id === 'screen-game') {
+                document.getElementById('global-progress').style.display = 'block';
+                document.getElementById('game-stats').style.display = 'flex';
+                document.getElementById('level-badge').style.display = 'inline-block';
+            } else {
+                document.getElementById('global-progress').style.display = 'none';
+                if (id !== 'screen-quiz') { // Keep stats for quiz but maybe not badge
+                    document.getElementById('level-badge').style.display = 'none';
+                }
+                if (id === 'screen-home' || id === 'screen-level' || id === 'screen-history') {
+                    document.getElementById('game-stats').style.display = 'none';
+                }
+                if (id === 'screen-history') {
+                    renderHistory();
+                }
+            }
+        }
+
+        function updateAvatar(mood) {
+            const el = document.getElementById('avatar-display');
+            if (mood === 'happy') el.innerText = '😄';
+            else if (mood === 'thinking') el.innerText = '🤔';
+            else if (mood === 'excited') el.innerText = '🤩';
+            else if (mood === 'sad') el.innerText = '😥';
+            else el.innerText = '😐';
+
+            el.style.animation = 'none';
+            el.offsetHeight; /* trigger reflow */
+            el.style.animation = 'bounce 0.5s';
+        }
+
+        function addScore(points) {
+            AppState.score += points;
+            const el = document.getElementById('score-display');
+            animateValue(el, parseInt(el.innerText), AppState.score, 1000);
+            updateAvatar('excited');
+        }
+
+        function showFeedback(msg, isGood, duration = 3000) {
+            // Target any available feedback element
+            const el = document.getElementById('step-feedback') ||
+                document.getElementById('quiz-feedback') ||
+                document.getElementById('game-feedback');
+
+            if (!el) return;
+            el.innerText = msg;
+            el.className = 'feedback-msg ' + (isGood ? 'good' : 'bad');
+            el.style.opacity = 1;
+
+            // Ensure feedback is visible
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Auto hide after specified duration (0 means persistent)
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (el && el.innerText === msg) el.style.opacity = 0;
+                }, duration);
+            }
+        }
+
+        function clearFeedback() {
+            const el = document.getElementById('step-feedback') ||
+                document.getElementById('quiz-feedback') ||
+                document.getElementById('game-feedback');
+            if (el) el.style.opacity = 0;
+        }
+
+        /* [QUIZ LOGIC] --------------------------------------- */
+        function renderQuiz() {
+            const q = QuizData[AppState.quizIdx];
+            AppState.quizSelectedAnswer = -1;
+            const container = document.getElementById('quiz-container');
+            const feedback = document.getElementById('quiz-feedback');
+            const nextContainer = document.getElementById('quiz-next-btn-container');
+
+            if (feedback) feedback.style.opacity = 0;
+            if (nextContainer) nextContainer.style.display = 'none';
+
+            if (q.type === 'short-answer') {
+                container.innerHTML = `
+                    <div class="selection-card" style="width:100%; text-align:left; cursor:default; padding:30px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-weight:bold; color:var(--primary); font-size:0.9rem;">문항 1 / ${QuizData.length}</span>
+                            <div style="display:flex; gap:10px;">
+                                <button class="action-btn secondary" style="opacity:0.5; cursor:not-allowed; padding:5px 15px; font-size:0.85rem;" disabled>이전</button>
+                                <button class="action-btn secondary" style="padding:5px 15px; font-size:0.85rem;" onclick="nextQuiz()">다음</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px;">
+                            <h3 style="margin:0; color:var(--primary); line-height:1.4;">${q.q}</h3>
+                            <div style="display:flex; gap:8px;">
+                                ${q.graphicHint ? `<button class="action-btn secondary" style="width:auto; padding:8px 15px; font-size:0.85rem; background:#eff6ff; border:1px solid #3b82f6; color:#1e40af; white-space:nowrap;" onclick="showQuizHint('graphic')">🖼️ 그림 힌트</button>` : ''}
+                                <button class="action-btn secondary" style="width:auto; padding:8px 15px; font-size:0.85rem; background:#f0fdf4; border:1px solid #22c55e; color:#166534; white-space:nowrap;" onclick="showQuizHint('initial')">💡 초성 힌트</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:15px; margin-bottom:25px;">
+                            <input type="text" class="quiz-short-input" placeholder="구조 1" onfocus="clearFeedback()" style="flex:1; padding:12px; border-radius:10px; border:2px solid #e2e8f0; font-size:1.1rem; text-align:center; transition:all 0.3s;">
+                            <input type="text" class="quiz-short-input" placeholder="구조 2" onfocus="clearFeedback()" style="flex:1; padding:12px; border-radius:10px; border:2px solid #e2e8f0; font-size:1.1rem; text-align:center; transition:all 0.3s;">
+                            <input type="text" class="quiz-short-input" placeholder="구조 3" onfocus="clearFeedback()" style="flex:1; padding:12px; border-radius:10px; border:2px solid #e2e8f0; font-size:1.1rem; text-align:center; transition:all 0.3s;">
+                        </div>
+                        <button id="quiz-submit-btn" class="action-btn" style="width:100%; transition:all 0.3s;" onclick="checkQuiz()">정답 제출하기</button>
+                        <div id="quiz-hint-display" style="display:none; margin-top:20px; padding:15px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; text-align:center;"></div>
+                    </div>
+                `;
+            } else if (q.type === 'drag-table') {
+                const titles = q.items.map(it => ({ id: it.id, text: it.title, category: 'title' }));
+                const descs = q.items.map(it => ({ id: it.id, text: it.desc, category: 'desc' }));
+                const pool = [...titles, ...descs].sort(() => Math.random() - 0.5);
+
+                container.innerHTML = `
+                    <div class="selection-card" style="width:100%; cursor:default; padding:30px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <span style="font-weight:bold; color:var(--primary); font-size:0.9rem;">문항 2 / ${QuizData.length}</span>
+                            <div style="display:flex; gap:10px;">
+                                <button class="action-btn secondary" style="padding:5px 15px; font-size:0.85rem;" onclick="prevQuiz()">이전</button>
+                                <button class="action-btn secondary" style="opacity:0.5; cursor:not-allowed; padding:5px 15px; font-size:0.85rem;" disabled>다음</button>
+                            </div>
+                        </div>
+                        <h3 style="margin:0 0 25px 0; text-align:left; color:var(--primary); line-height:1.4;">${q.q}</h3>
+                        
+                        <table class="drag-quiz-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:25%;">도해조직자 (그림)</th>
+                                    <th style="width:30%;">구조 이름</th>
+                                    <th style="width:45%;">구조에 대한 설명</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${q.items.map(item => `
+                                    <tr data-row-id="${item.id}">
+                                        <td>
+                                            <div class="matching-img-container" style="background:white; border-radius:8px; padding:5px; height:90px; display:flex; align-items:center; justify-content:center; position:relative;">
+                                                <img src="${item.graphic}" class="matching-img-small">
+                                                <div class="zoom-icon-btn" onclick="zoomImage(event, '${item.graphic}')">🔍</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="quiz-drop-zone" data-category="title" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+                                                <span style="color:#cbd5e1; font-size:0.85rem;">여기에 드래그</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="quiz-drop-zone" data-category="desc" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+                                                <span style="color:#cbd5e1; font-size:0.85rem;">여기에 드래그</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div style="display:flex; gap:20px; margin-top:30px;">
+                            <div style="flex:1;">
+                                <div style="font-weight:bold; color:var(--primary); font-size:0.9rem; margin-bottom:10px;">🏷️ 구조 이름</div>
+                                <div class="draggable-pool" id="quiz-drag-pool-title" data-category="title" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)" style="min-height:100px; background:#f0f9ff; border:2px dashed #bae6fd;">
+                                    ${pool.filter(p => p.category === 'title').map((p, i) => `
+                                        <div class="draggable-item" draggable="true" id="drag-item-title-${i}" data-id="${p.id}" data-category="${p.category}" ondragstart="handleDragStart(event)">
+                                            ${p.text}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-weight:bold; color:var(--primary); font-size:0.9rem; margin-bottom:10px;">📝 구조 설명</div>
+                                <div class="draggable-pool" id="quiz-drag-pool-desc" data-category="desc" ondragover="handleDragOver(event)" ondrop="handleDropToPool(event)" style="min-height:100px; background:#f0fdf4; border:2px dashed #bbf7d0;">
+                                    ${pool.filter(p => p.category === 'desc').map((p, i) => `
+                                        <div class="draggable-item" draggable="true" id="drag-item-desc-${i}" data-id="${p.id}" data-category="${p.category}" ondragstart="handleDragStart(event)">
+                                            ${p.text}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="quiz-submit-btn" class="action-btn" style="width:100%; margin-top:30px; transition:all 0.3s;" onclick="checkQuiz()">정답 제출하기</button>
+                        <div id="quiz-hint-display" style="display:none; margin-top:20px; padding:15px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; text-align:center;"></div>
+                    </div>
+                `;
+            } else if (q.type === 'matching-3way') {
+                const titles = [...q.items].sort(() => Math.random() - 0.5);
+                const graphics = [...q.items].sort(() => Math.random() - 0.5);
+                const descs = [...q.items].sort(() => Math.random() - 0.5);
+
+                container.innerHTML = `
+                    <div class="selection-card" style="width:100%; cursor:default; padding:30px;">
+                        <div style="margin-bottom:30px; border-bottom:1px solid #f1f5f9; padding-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="margin:0; text-align:left; color:var(--primary); line-height:1.4;">${q.q}</h3>
+                            <span style="font-size:0.85rem; color:#64748b;">(이름 → 그림 → 설명 순서로 클릭!)</span>
+                        </div>
+                        <div class="matching-container" id="matching-container">
+                            <div class="matching-column" data-type="title">
+                                <div style="font-size:0.85rem; font-weight:bold; color:#64748b; text-align:center; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:5px;">구조 이름</div>
+                                ${titles.map(item => `<div class="matching-item" data-id="${item.id}">${item.title}</div>`).join('')}
+                            </div>
+                            <div class="matching-column" data-type="graphic">
+                                <div style="font-size:0.85rem; font-weight:bold; color:#64748b; text-align:center; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:5px;">구조 그림</div>
+                                ${graphics.map(item => {
+                    let content = item.graphic.endsWith('.png')
+                        ? `<div class="matching-img-container">
+                                             <img src="${item.graphic}" style="max-width:100%; max-height:70px; object-fit:contain; pointer-events:none;">
+                                             <div class="zoom-icon-btn" onclick="zoomImage(event, '${item.graphic}')">🔍</div>
+                                           </div>`
+                        : `<span style="font-size:2rem;">${item.graphic}</span>`;
+                    return `<div class="matching-item" data-id="${item.id}">${content}</div>`;
+                }).join('')}
+                            </div>
+                            <div class="matching-column" data-type="desc">
+                                <div style="font-size:0.85rem; font-weight:bold; color:#64748b; text-align:center; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:5px;">구조 설명</div>
+                                ${descs.map(item => `<div class="matching-item" data-id="${item.id}" style="font-size:0.85rem; padding:10px;">${item.desc}</div>`).join('')}
+                            </div>
+                        </div>
+                        <button id="quiz-submit-btn" class="action-btn" style="width:100%; margin-top:15px; transition:all 0.3s;" onclick="checkQuiz()">매칭 완료</button>
+                        <div id="quiz-hint-display" style="display:none; margin-top:20px; padding:15px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; text-align:center;"></div>
+                    </div>
+                `;
+                setupMatchingLogic();
+            }
+        }
+
+        /* --- Drag and Drop Logic for Quiz --- */
+        function handleDragStart(e) {
+            clearFeedback();
+            e.dataTransfer.setData("text/plain", e.target.id);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.quiz-drop-zone') || e.target.closest('.draggable-pool');
+            if (zone) zone.classList.add('hover');
+        }
+
+        function handleDragLeave(e) {
+            const zone = e.target.closest('.quiz-drop-zone') || e.target.closest('.draggable-pool');
+            if (zone) zone.classList.remove('hover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.quiz-drop-zone');
+            if (!zone) return;
+            zone.classList.remove('hover');
+
+            const id = e.dataTransfer.getData("text/plain");
+            const draggableElement = document.getElementById(id);
+            if (!draggableElement) return;
+
+            // Check category match 
+            const itemCat = draggableElement.dataset.category;
+            const zoneCat = zone.dataset.category;
+
+            if (itemCat !== zoneCat) {
+                showFeedback("알맞은 칸에 넣어주세요! 😉", false);
+                draggableElement.classList.remove('dragging');
+                return;
+            }
+
+            // If zone already has an item, return that item to pool
+            const existingItem = zone.querySelector('.draggable-item');
+            if (existingItem) {
+                const targetPoolId = `quiz-drag-pool-${existingItem.dataset.category}`;
+                const pool = document.getElementById(targetPoolId);
+                if (pool) pool.appendChild(existingItem);
+            }
+
+            zone.innerHTML = '';
+            zone.appendChild(draggableElement);
+            zone.classList.add('filled');
+            draggableElement.classList.remove('dragging');
+        }
+
+        function handleDropToPool(e) {
+            e.preventDefault();
+            const pool = e.target.closest('.draggable-pool');
+            if (!pool) return;
+            pool.classList.remove('hover');
+
+            const id = e.dataTransfer.getData("text/plain");
+            const draggableElement = document.getElementById(id);
+            if (!draggableElement) return;
+
+            // Strict category check for pools
+            if (pool.dataset.category && pool.dataset.category !== draggableElement.dataset.category) {
+                showFeedback("알맞은 박스에 넣어주세요! 😉", false);
+                draggableElement.classList.remove('dragging');
+                return;
+            }
+
+            pool.appendChild(draggableElement);
+            draggableElement.classList.remove('dragging');
+
+            // Find old zone and mark as empty
+            document.querySelectorAll('.quiz-drop-zone').forEach(z => {
+                if (z.children.length === 0) {
+                    z.classList.remove('filled');
+                    z.innerHTML = `<span style="color:#cbd5e1; font-size:0.85rem;">여기에 드래그</span>`;
+                }
+            });
+        }
+
+        let matchedGroupOrder = 0; // To assign colors in order
+        function setupMatchingLogic() {
+            matchingSet = { title: null, graphic: null, desc: null };
+            matchedGroupOrder = 0; // Reset counter
+            const items = document.querySelectorAll('.matching-item');
+
+            items.forEach(item => {
+                item.onclick = () => {
+                    clearFeedback();
+                    if (item.classList.contains('matched')) return;
+
+                    const type = item.parentElement.dataset.type;
+                    const id = item.dataset.id;
+
+                    // Sequence Enforcement: title -> graphic -> desc
+                    if (type === 'title') {
+                        document.querySelectorAll('.matching-column[data-type="title"] .matching-item').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.matching-column[data-type="graphic"] .matching-item').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.matching-column[data-type="desc"] .matching-item').forEach(el => el.classList.remove('selected'));
+
+                        item.classList.add('selected');
+                        matchingSet = { title: id, graphic: null, desc: null };
+                    }
+                    else if (type === 'graphic') {
+                        if (!matchingSet.title) {
+                            showFeedback("먼저 '구조 이름'을 선택해주세요! 😉", false);
+                            return;
+                        }
+                        document.querySelectorAll('.matching-column[data-type="graphic"] .matching-item').forEach(el => el.classList.remove('selected'));
+                        document.querySelectorAll('.matching-column[data-type="desc"] .matching-item').forEach(el => el.classList.remove('selected'));
+
+                        item.classList.add('selected');
+                        matchingSet.graphic = id;
+                        matchingSet.desc = null;
+                    }
+                    else if (type === 'desc') {
+                        if (!matchingSet.graphic) {
+                            showFeedback("그 다음 '구조 그림'을 선택해주세요! 😉", false);
+                            return;
+                        }
+                        item.classList.add('selected');
+                        matchingSet.desc = id;
+
+                        // Check triplet completeness
+                        if (matchingSet.title === matchingSet.graphic && matchingSet.graphic === matchingSet.desc) {
+                            // MATCH!
+                            const tripletId = matchingSet.title;
+                            const groupClass = `group-${matchedGroupOrder}`;
+                            matchedGroupOrder++;
+
+                            document.querySelectorAll(`.matching-item[data-id="${tripletId}"]`).forEach(el => {
+                                el.classList.remove('selected');
+                                el.classList.add('matched', groupClass);
+                            });
+                            showFeedback("정확한 연결입니다! 잘하셨어요. 👍", true);
+                            matchingSet = { title: null, graphic: null, desc: null };
+
+                            // If all 3 matched, sort them nicely and SHOW NEXT
+                            if (document.querySelectorAll('.matching-item.matched').length === 9) {
+                                setTimeout(sortMatchedItems, 500);
+                                setTimeout(() => {
+                                    const submitBtn = document.getElementById('quiz-submit-btn');
+                                    if (submitBtn) submitBtn.style.display = 'none'; // Hide the "매칭 완료" button
+
+                                    const nextBtn = document.getElementById('quiz-next-btn-container');
+                                    if (nextBtn) {
+                                        nextBtn.innerHTML = `<button class="action-btn pulse" onclick="nextQuiz()" style="width:100%; max-width:480px; padding:25px; font-size:1.4rem; background:var(--primary-dark); box-shadow:0 8px 25px rgba(0,0,0,0.15); border-radius:15px; border:none; color:white; font-weight:bold; cursor:pointer;">다음 문제로 넘어가기 ➔</button>`;
+                                        nextBtn.style.display = 'block';
+                                        nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                }, 1000);
+                            }
+                        } else {
+                            // MISMATCH
+                            showFeedback("앗, 서로 어울리지 않는 짝이에요. 다시 한번 제목부터 골라볼까요? 🤔", false);
+                            setTimeout(() => {
+                                document.querySelectorAll('.matching-item.selected').forEach(el => el.classList.remove('selected'));
+                                matchingSet = { title: null, graphic: null, desc: null };
+                            }, 1000);
+                        }
+                    }
+                };
+            });
+        }
+
+        function sortMatchedItems() {
+            const container = document.getElementById('matching-container');
+            if (!container) return;
+
+            const columns = container.querySelectorAll('.matching-column');
+            const targetOrder = ['enum', 'seq', 'comp'];
+
+            columns.forEach(col => {
+                const header = col.firstElementChild; // The "구조 이름", etc. div
+                const items = Array.from(col.querySelectorAll('.matching-item'));
+
+                // Sort by target order
+                items.sort((a, b) => {
+                    return targetOrder.indexOf(a.dataset.id) - targetOrder.indexOf(b.dataset.id);
+                });
+
+                // Clear and re-append
+                col.innerHTML = '';
+                col.appendChild(header);
+                items.forEach(item => col.appendChild(item));
+            });
+        }
+
+        function zoomImage(e, src) {
+            if (e) e.stopPropagation();
+            const modal = document.getElementById('image-zoom-modal');
+            const img = document.getElementById('zoomed-image');
+            img.src = src;
+            modal.style.display = 'flex';
+        }
+
+        function showQuizHint(type) {
+            const q = QuizData[AppState.quizIdx];
+            const display = document.getElementById('quiz-hint-display');
+            if (!display) return;
+
+            display.style.display = 'block';
+            if (type === 'initial') {
+                display.innerHTML = `<div style="color:var(--primary); font-weight:bold;">💡 초성 힌트: ${q.initialHints || "힌트가 없습니다."}</div>`;
+            } else if (type === 'graphic') {
+                display.innerHTML = `<div style="color:var(--primary); font-weight:bold; margin-bottom:5px;">🖼️ 그림 힌트</div>${q.graphicHint || "이미지 예시가 없습니다."}`;
+            }
+        }
+
+        function checkQuiz() {
+            const q = QuizData[AppState.quizIdx];
+            let isCorrect = false;
+            const submitBtn = document.getElementById('quiz-submit-btn');
+            let feedbackMsg = "틀렸습니다. 해당 내용을 체크하며 다시 생각해 보세요. 🤔"; // 기본 오답 메시지
+
+            if (q.type === 'short-answer') {
+                const inputEls = Array.from(document.querySelectorAll('.quiz-short-input'));
+                let correctInBox = 0;
+                let usedAnswersIndices = [];
+                let incorrectInputs = [];
+
+                inputEls.forEach(el => {
+                    const val = el.value.trim();
+                    if (val === "") return;
+
+                    let matchedIdx = -1;
+
+                    // Find if any answer matches and hasn't been used yet
+                    for (let i = 0; i < q.answers.length; i++) {
+                        if (usedAnswersIndices.includes(i)) continue;
+
+                        const ans = q.answers[i];
+                        let isMatch = false;
+
+                        if (ans.includes(',')) {
+                            const subAns = ans.split(',');
+                            isMatch = subAns.every(sa => val.includes(sa));
+                        } else {
+                            isMatch = val.includes(ans);
+                        }
+
+                        if (isMatch) {
+                            matchedIdx = i;
+                            break;
+                        }
+                    }
+
+                    if (matchedIdx !== -1) {
+                        el.style.borderColor = "#22c55e";
+                        el.style.backgroundColor = "#f0fdf4";
+                        correctInBox++;
+                        usedAnswersIndices.push(matchedIdx);
+                    } else {
+                        el.style.borderColor = "#ef4444";
+                        el.style.backgroundColor = "#fef2f2";
+                        incorrectInputs.push(val);
+                    }
+                });
+
+                isCorrect = (correctInBox === q.answers.length);
+                if (isCorrect) {
+                    feedbackMsg = "정답입니다! 🌟 설명하는 글의 구조 3가지를 모두 잘 찾았습니다.";
+                } else {
+                    let parts = ["틀렸습니다."];
+                    if (incorrectInputs.length > 0) {
+                        parts.push(`'${incorrectInputs.join("', '")}'은(는) 틀린 답입니다.`);
+                    }
+                    if (correctInBox > 0) {
+                        const foundNames = usedAnswersIndices.map(idx => q.answers[idx].replace(',', '와 ')).join(', ');
+                        parts.push(`${foundNames} 구조는 잘 찾았습니다.`);
+                    }
+                    parts.push("해당 내용을 체크하며 다시 생각해 보세요! 🤔");
+                    feedbackMsg = parts.join(" ");
+                }
+            } else if (q.type === 'drag-table') {
+                let correctCount = 0;
+                document.querySelectorAll('.drag-quiz-table tbody tr').forEach(row => {
+                    const rowId = row.dataset.rowId;
+                    const titleItem = row.querySelector('[data-category="title"] .draggable-item');
+                    const descItem = row.querySelector('[data-category="desc"] .draggable-item');
+
+                    if (titleItem && titleItem.dataset.id === rowId) correctCount++;
+                    if (descItem && descItem.dataset.id === rowId) correctCount++;
+                });
+
+                isCorrect = (correctCount === 6);
+                if (isCorrect) {
+                    feedbackMsg = "정답입니다! 🌟 도해조직자에 알맞은 구조와 설명을 모두 잘 연결했습니다.";
+                } else {
+                    feedbackMsg = "틀렸습니다. 빈칸을 모두 채우거나, 해당 내용을 체크하며 다시 생각해 보세요! 🤔";
+                }
+            } else if (q.type === 'matching-3way') {
+                const matchedCount = document.querySelectorAll('.matching-column[data-type="title"] .matching-item.matched').length;
+                isCorrect = (matchedCount === 3);
+                if (isCorrect) {
+                    feedbackMsg = "정답입니다! 🌟 모든 구조와 그림, 설명을 완벽하게 매칭했습니다.";
+                } else {
+                    feedbackMsg = `틀렸습니다. 아직 매칭되지 않은 구조가 있어요. 해당 내용을 체크하며 다시 생각해 보세요. (${matchedCount}/3 완성) 🤔`;
+                }
+            }
+
+            if (isCorrect) {
+                showFeedback(feedbackMsg, true, 0); // Correct feedback stays persistent
+                addScore(500);
+
+                // transform submit button into next button for better UX
+                if (submitBtn) {
+                    submitBtn.innerHTML = "다음 문제로 이동하기 ➔";
+                    submitBtn.onclick = nextQuiz;
+                    submitBtn.style.backgroundColor = "var(--primary-dark)";
+                    submitBtn.style.fontSize = "1.3rem";
+                    submitBtn.style.padding = "20px";
+                    submitBtn.classList.add('pulse');
+                }
+
+                if (q.type === 'short-answer') {
+                    const nextBtnContainer = document.getElementById('quiz-next-btn-container');
+                    if (nextBtnContainer) {
+                        nextBtnContainer.style.display = 'none'; // Ensure the separate next button container is hidden
+                    }
+                }
+
+                updateAvatar('excited');
+            } else {
+                showFeedback(feedbackMsg, false);
+                updateAvatar('thinking');
+            }
+        }
+
+
+        function nextQuiz() {
+            if (AppState.quizIdx < QuizData.length - 1) {
+                AppState.quizIdx++;
+                renderQuiz();
+            } else {
+                showScreen('screen-pledge');
+            }
+        }
+
+        function prevQuiz() {
+            if (AppState.quizIdx > 0) {
+                AppState.quizIdx--;
+                renderQuiz();
+            }
+        }
+
+        function finishPledge() {
+            const pledge = document.getElementById('pledge-input').value.trim();
+            if (!pledge) {
+                showFeedback("나의 다짐을 한 줄 적어보세요! 😊", false);
+                return;
+            }
+            showScreen('screen-level');
+        }
+
+        /* [GAME LOGIC] --------------------------------------- */
+        function startGame(level) {
+            AppState.level = level;
+            AppState.score = 0;
+            updateAvatar('thinking');
+
+            // Random Text Selection
+            const pool = GameData[level];
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            AppState.currentText = JSON.parse(JSON.stringify(pool[randomIndex])); // Deep Copy
+
+            // Badge
+            const badge = document.getElementById('level-badge');
+            badge.innerText = level === 'beginner' ? '초급' : level === 'intermediate' ? '중급' : '상급';
+            badge.className = 'badge ' + level;
+
+            // Prepare Data for Analysis (Flatten Sentences & Split Tokens)
+            AppState.currentSentences = [];
+            AppState.currentText.paragraphs.forEach((para, pIdx) => {
+                const sents = para.text.split(/(?<=[.?!])\s+/).filter(s => s.length > 0);
+                sents.forEach((s, sIdx) => {
+                    // Split into tokens for Step 1/3
+                    const tokens = s.trim().split(/\s+/).map(t => ({
+                        text: t,
+                        isTopic: false,
+                        isMarker: false
+                    }));
+
+                    AppState.currentSentences.push({
+                        text: s.trim(),
+                        tokens: tokens, // Word-level tokens
+                        origPara: pIdx,
+                        isMain: (sIdx === para.mainSentenceIndex),
+                        isSelected: false // User choice
+                    });
+                });
+            });
+
+            // Reset Analysis State
+            AppState.userKeyword = AppState.currentText.keyword; // Use data keyword
+            AppState.selectedMarkers = [];
+            AppState.diagramItems = [];
+            AppState.currentStructureType = '';
+            AppState.hintLevel = 0;
+            updateHintStatus();
+
+            setStep('structure');
+            renderTextWithHints();
+            showScreen('screen-game');
+
+            // Update Header Title
+            const titleEl = document.getElementById('game-title-step');
+            if (titleEl) titleEl.innerText = AppState.currentText.title;
+        }
+
+        function setStep(content) {
+            const container = document.getElementById('game-step-content');
+            if (!container) return;
+
+            if (content === 'structure') {
+                container.innerHTML = `
+                    <h4 style="margin-bottom:20px;">🎯 글의 내용을 바탕으로 가장 알맞은 구조를 선택하세요.</h4>
+                    <div class="strategy-options" id="structure-selection-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
+                        <div class="selection-card strategy-card" id="card-enum" onclick="selectStructure('enum')" style="padding:20px;">
+                            <div style="font-size:2rem; margin-bottom:10px;">📋</div>
+                            <div style="font-weight:bold; color:var(--primary);">열거 구조</div>
+                            <div style="font-size:0.85rem; color:#64748b; margin-top:5px;">특징이나 장점 등을 나열함</div>
+                        </div>
+                        <div class="selection-card strategy-card" id="card-seq" onclick="selectStructure('seq')" style="padding:20px;">
+                            <div style="font-size:2rem; margin-bottom:10px;">🕒</div>
+                            <div style="font-weight:bold; color:var(--primary);">순서 구조</div>
+                            <div style="font-size:0.85rem; color:#64748b; margin-top:5px;">시간이나 과정의 순서대로 설명함</div>
+                        </div>
+                        <div class="selection-card strategy-card" id="card-comp" onclick="selectStructure('comp')" style="padding:20px;">
+                            <div style="font-size:2rem; margin-bottom:10px;">⚖️</div>
+                            <div style="font-weight:bold; color:var(--primary);">비교와 대조</div>
+                            <div style="font-size:0.85rem; color:#64748b; margin-top:5px;">공통점과 차이점을 위주로 설명함</div>
+                        </div>
+                    </div>
+
+                    <!-- Structure Selection Reasoning (Initially Hidden) -->
+                    <div id="structure-reasoning-area" style="display:none; margin-top:30px; background:#fffbeb; border:2px solid #fde68a; border-radius:15px; padding:25px; box-shadow:0 4px 15px rgba(251,191,36,0.1);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                            <span style="font-size:1.5rem;">🤔</span>
+                            <h4 style="margin:0; color:#92400e;">왜 이 구조를 선택했는지 자신의 생각을 적어보세요.</h4>
+                        </div>
+                        <textarea id="structure-reason-input" 
+                            placeholder="예: '첫째, 둘째'와 같은 표현이 쓰여서 열거 구조를 선택했어요. / 공통점과 차이점을 설명하고 있어서 비교와 대조를 골랐어요."
+                            style="width:100%; height:100px; padding:15px; border-radius:10px; border:2px solid #fef3c7; font-family:inherit; font-size:1rem; resize:none; outline:none; margin-bottom:20px;"></textarea>
+                        <button class="action-btn" onclick="confirmStructureReason()" style="width:100%; background:#f59e0b; color:white; border:none;">✅ 확인하고 그림 그리기</button>
+                    </div>
+
+                    <!-- Hint Section (Relocated between selection and diagram) -->
+                    <div id="hint-section" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-top:30px;">
+                        <div style="font-weight:bold; color:var(--primary); margin-bottom:10px; font-size:0.95rem;">💡 분석 힌트 선택</div>
+                        <div id="hint-controls" style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                <button class="builder-btn" onclick="applyHint(2)"
+                                    title="각 문단에서 가장 중요한 내용을 담은 문장이에요."
+                                    style="background:#dcfce7; border-color:#4ade80; flex:1; min-width:100px;">중심 문장 힌트</button>
+                                <button class="builder-btn" onclick="applyHint(3)"
+                                    title="글의 구조(차례, 특징 등)를 안내하는 단어예요."
+                                    style="background:#ffedd5; border-color:#fb923c; flex:1; min-width:100px;">글의 구조를 드러내는 말(표지어) 힌트</button>
+                            </div>
+                            <span id="hint-status" style="font-size:0.8rem; color:#64748b; font-weight:normal; min-height:1.2em;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Diagram Activity Area (Initially Hidden) -->
+                    <div id="diagram-activity-area" style="display:none; margin-top:40px; border-top:2px dashed #e2e8f0; padding-top:30px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <h4 style="margin:0;">🎯 구조 그림을 완성하고 내용을 정리하세요.</h4>
+                        </div>
+                        <div class="diagram-canvas-container">
+                            <div class="diagram-header" id="diagram-header" style="background:var(--primary); color:white; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold;">구조도 생성 중...</div>
+                            <div id="diagram-canvas-final" class="diagram-canvas" style="border:2px dashed #cbd5e1; min-height:450px; display:flex; flex-direction:column; gap:15px; padding:15px; background:#f8fafc; border-radius:12px; overflow-y:auto; margin-bottom:30px;"></div>
+                        </div>
+
+                        <div id="summary-writing-section" style="margin-top:40px; border-top:2px solid #f1f5f9; padding-top:30px;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                                <span style="font-size:1.5rem;">✍️</span>
+                                <h4 style="margin:0; color:var(--primary-dark);">5. 오늘 배운 내용과 소감을 간단하게 적어보세요.</h4>
+                            </div>
+                            <p style="font-size:0.9rem; color:#64748b; margin-bottom:12px;">오늘 글을 분석하면서 배운 내용이나 느낀 점을 자유롭게 적어볼까요? (기존의 요약 대신 소감을 적어주세요!)</p>
+                            <textarea id="user-summary-input" 
+                                placeholder="여기에 오늘 배운 내용과 소감을 입력하세요. 😊"
+                                style="width:100%; min-height:180px; padding:20px; border-radius:12px; border:2px solid #e2e8f0; font-family:inherit; font-size:1rem; line-height:1.7; resize:vertical; outline:none; transition:border-color 0.2s; margin-bottom:25px;"></textarea>
+                            <button class="action-btn" onclick="triggerGenerateReport()" style="width:100%; padding:20px; font-size:1.2rem; background:var(--primary-dark); box-shadow:0 10px 25px rgba(59,130,246,0.3);">📋 분석 완료! 보고서 생성하기</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /* --- Hint-Based Interaction Helpers --- */
+        function applyHint(level) {
+            AppState.hintLevel = level;
+            updateHintStatus();
+            renderTextWithHints();
+
+            const labels = ["", "주제 낱말", "중심 문장", "글의 구조를 드러내는 말(표지어)"];
+            showFeedback(`${labels[level]} 힌트가 적용되었습니다! ✨`, true);
+        }
+
+        function updateHintStatus() {
+            const statusEl = document.getElementById('hint-status');
+            if (!statusEl) return;
+            const labels = ["", "주제 낱말이 노란색으로 표시됩니다.", "중심 문장에 밑줄이 표시됩니다.", "글의 구조를 드러내는 말(표지어)에 테두리가 표시됩니다."];
+            let text = AppState.hintLevel > 0 ? `활성화: ${labels[AppState.hintLevel]}` : "";
+
+            if (AppState.hintLevel === 3) {
+                text += "\n⚠️ 동일한 표지어가 여러 가지 글의 구조에서 공통적으로 쓰일 수 있으므로, 단어 자체에 의존하기보다 앞뒤 내용을 파악하여 구조를 최종 판단하세요.";
+            }
+            statusEl.innerText = text;
+            statusEl.style.whiteSpace = 'pre-wrap';
+        }
+
+        function renderTextWithHints() {
+            const container = document.getElementById('text-panel');
+            if (!container) return;
+            container.innerHTML = '';
+            container.style.lineHeight = '2';
+            container.style.fontSize = '1.15rem';
+
+            let currentParaDiv = null;
+            AppState.currentSentences.forEach((s, sIdx) => {
+                // Paragraph Separation
+                if (currentParaDiv === null || (sIdx > 0 && s.origPara !== AppState.currentSentences[sIdx - 1].origPara)) {
+                    currentParaDiv = document.createElement('div');
+                    currentParaDiv.style.marginBottom = '25px';
+                    currentParaDiv.style.textIndent = '1.5rem';
+                    container.appendChild(currentParaDiv);
+                }
+
+                const sentenceSpan = document.createElement('span');
+                sentenceSpan.className = 'canvas-sentence';
+
+                // Hint Level 2: Highlight Main Sentences
+                if (AppState.hintLevel === 2 && s.isMain) {
+                    sentenceSpan.classList.add('selected');
+                }
+
+                s.tokens.forEach((t, tIdx) => {
+                    const tokenSpan = document.createElement('span');
+                    tokenSpan.className = 'canvas-token';
+                    tokenSpan.innerText = t.text;
+                    tokenSpan.style.pointerEvents = 'none'; // Passive viewing in this mode
+
+                    // Hint Level 1: Topic Highlight
+                    if (AppState.hintLevel === 1 && t.text === AppState.currentText.keyword) {
+                        tokenSpan.classList.add('topic');
+                    }
+
+                    // Hint Level 3: Marker Highlight
+                    if (AppState.hintLevel === 3) {
+                        const markers = ["첫째", "둘째", "셋째", "먼저", "다음으로", "그다음으로", "마지막으로", "반면", "공통점", "차이점", "하지만", "또한", "이처럼", "이와 달리", "같지만", "다릅니다"];
+                        const cleanToken = t.text.replace(/[.?!,]/g, '');
+                        if (markers.some(m => cleanToken.includes(m))) {
+                            tokenSpan.classList.add('marker');
+                        }
+                    }
+
+                    sentenceSpan.appendChild(tokenSpan);
+                    if (tIdx < s.tokens.length - 1) {
+                        sentenceSpan.appendChild(document.createTextNode(' '));
+                    }
+                });
+
+                currentParaDiv.appendChild(sentenceSpan);
+                currentParaDiv.appendChild(document.createTextNode(' '));
+            });
+        }
+
+        function selectStructure(type) {
+            AppState.currentStructureType = type;
+
+            // UI Feedback
+            document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
+            const selectedCard = document.getElementById('card-' + type);
+            if (selectedCard) selectedCard.classList.add('selected');
+
+            // Show Reasoning Area
+            const reasoningArea = document.getElementById('structure-reasoning-area');
+            if (reasoningArea) {
+                reasoningArea.style.display = 'block';
+                setTimeout(() => reasoningArea.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+            }
+
+            updateAvatar('happy');
+        }
+
+        function confirmStructureReason() {
+            const reason = document.getElementById('structure-reason-input').value.trim();
+            if (!reason) {
+                showFeedback("선택한 이유를 한 줄만 적어주세요! 😊", false);
+                return;
+            }
+            AppState.reasonForStructure = reason;
+
+            // Show Diagram Building area
+            const activityArea = document.getElementById('diagram-activity-area');
+            if (activityArea) {
+                activityArea.style.display = 'block';
+                setTimeout(() => activityArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            }
+
+            setupStep5();
+            showFeedback("좋은 생각이에요! 이제 그림을 완성해볼까요? ✨", true);
+        }
+
+        /* --- Sidebar Navigation Logic --- */
+        function goToActivityStep(n) {
+            if (n === 1) {
+                applyHint(0); // Reset hints for step 1
+                updateSidebarHighlight(1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (n === 2) {
+                applyHint(2);
+            } else if (n === 3) {
+                applyHint(3);
+            } else if (n === 4) {
+                const target = document.getElementById('structure-selection-grid');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    updateSidebarHighlight(4);
+                }
+            } else if (n === 5) {
+                const area = document.getElementById('diagram-activity-area');
+                if (area && area.style.display !== 'none') {
+                    area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    updateSidebarHighlight(5);
+                } else {
+                    showFeedback("먼저 글의 구조(4단계)를 선택해 주세요! 😊", false);
+                }
+            }
+        }
+
+        function updateSidebarHighlight(n) {
+            document.querySelectorAll('.side-tab').forEach(tab => tab.classList.remove('active'));
+            const activeTab = document.querySelector(`.side-tab.step-${n}`);
+            if (activeTab) activeTab.classList.add('active');
+        }
+
+        function checkStep5() {
+            // Validate diagram builder content (contenteditable divs)
+            const items = document.querySelectorAll('.structure-box.sub');
+            let filledCount = 0;
+            items.forEach(el => {
+                const text = el.innerText.trim();
+                // If user didn't change placeholder or left it blank/very short
+                if (text.length > 3 && !text.includes("입력하세요") && !text.includes("단계") && !text.includes("특징") && !text.includes("공통점")) {
+                    filledCount++;
+                }
+            });
+
+            if (filledCount < Math.max(1, items.length / 2)) {
+                showFeedback("구조도의 내용을 조금 더 자세히 채워주세요! ✍️", false);
+                return false;
+            }
+
+            return true;
+        }
+
+        async function triggerGenerateReport() {
+            if (!checkStep5()) return;
+
+            const overlay = document.getElementById('report-loading-overlay');
+            const bar = document.getElementById('report-loading-bar');
+            const mainText = document.getElementById('loading-main-text');
+            const subText = document.getElementById('loading-sub-text');
+
+            overlay.style.display = 'flex';
+
+            const steps = [
+                { prg: 30, main: "데이터 분석 중...", sub: "글의 구조와 주제를 확인하고 있습니다." },
+                { prg: 60, main: "도해조직자 생성 중...", sub: "분석한 내용을 시각화하고 있습니다." },
+                { prg: 90, main: "보고서 레이아웃 구성 중...", sub: "나만의 멋진 분석 보고서를 만듭니다." },
+                { prg: 100, main: "완료!", sub: "잠시 후 보고서가 나타납니다." }
+            ];
+
+            let currentStep = 0;
+            const animate = () => {
+                if (currentStep >= steps.length) {
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        finishGame(true); // Call with isInstant = true
+                    }, 300);
+                    return;
+                }
+
+                const s = steps[currentStep];
+                bar.style.width = s.prg + '%';
+                mainText.innerText = s.main;
+                subText.innerText = s.sub;
+
+                currentStep++;
+                setTimeout(animate, 400); // Faster speed (400ms)
+            };
+
+            animate();
+        }
+
+        /* --- Step 5: Diagram Builder --- */
+        function setupStep5() {
+            // Initialize diagram items based on structure type
+            const type = AppState.currentStructureType;
+            if (type === 'enum') {
+                AppState.diagramItems = ["특징 1", "특징 2", "특징 3"];
+            } else if (type === 'seq') {
+                AppState.diagramItems = ["1단계", "2단계", "3단계"];
+            } else if (type === 'comp') {
+                // Comparison: Multi-region object for blocks (Unified terminology)
+                AppState.diagramItems = {
+                    headers: { left: "대상 1 입력", center: "공통점", right: "대상 2 입력" },
+                    left: ["내용을 입력하세요"],
+                    center: ["내용을 입력하세요"],
+                    right: ["내용을 입력하세요"]
+                };
+            }
+            renderDiagram();
+        }
+
+        function clearPlaceholder(el) {
+            const val = el.innerText.trim();
+            const placeholders = [
+                "내용 입력", "특징 1", "특징 2", "특징 3",
+                "1단계", "2단계", "3단계", "4단계", "5단계",
+                "대상 1 입력", "대상 2 입력", "공통점", "공통점 입력",
+                "내용을 입력하세요"
+            ];
+            if (placeholders.includes(val)) {
+                el.innerText = "";
+            }
+        }
+
+        function renderDiagram() {
+            const container = document.getElementById('diagram-canvas-final');
+            const type = AppState.currentStructureType;
+            if (!container || !type) return;
+
+            // Header update (Focus on Topic)
+            const header = document.getElementById('diagram-header');
+            if (header) {
+                header.innerHTML = `
+                    <div style="font-size: 1.8rem; margin-bottom: 5px;">${AppState.currentText.title}</div>
+                    <div style="font-size: 0.9rem; font-weight: normal; opacity: 0.9;">
+                        ${type === 'enum' ? '열거 구조 분석' : type === 'seq' ? '순서 구조 분석' : '비교와 대조 분석'} (도해조직자)
+                    </div>
+                `;
+            }
+
+            // Ensure we have items (Support both Array and Object states)
+            const hasItems = Array.isArray(AppState.diagramItems) ?
+                AppState.diagramItems.length > 0 :
+                (type === 'comp' && AppState.diagramItems && typeof AppState.diagramItems === 'object');
+
+            if (!hasItems) {
+                setupStep5();
+                return;
+            }
+
+            const mainSentenceText = AppState.currentSentences.find(s => s.isMain)?.text || "주요 내용을 입력하세요.";
+
+            let html = `
+                <div class="structure-box main" style="background:#fff7ed; border:2px solid #fdba74; padding:20px; border-radius:12px; margin-bottom:15px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <div style="font-size:1.05rem; color:#9a3412; line-height:1.6; font-weight:600;">${mainSentenceText}</div>
+                </div>
+                <div style="text-align:center; font-size:1.8rem; margin-bottom:15px; color:#fdba74; animation: bounce 2s infinite;">⬇️</div>
+            `;
+
+            if (type === 'enum') {
+                html += `
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
+                        ${AppState.diagramItems.map((item, i) => `
+                            <div class="structure-box-wrapper" style="position:relative;">
+                                <button class="remove-box-btn" onclick="removeDiagramItem(${i})" style="position:absolute; top:-8px; right:-8px; background:#ef4444; color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5; box-shadow:0 2px 4px rgba(0,0,0,0.1);">×</button>
+                                <div class="structure-box sub" contenteditable="true" oninput="updateDiagramItem(${i}, this.innerText)" onfocus="clearPlaceholder(this)" 
+                                    style="background:white; border:1px solid #cbd5e1; padding:12px; border-radius:10px; min-height:80px; font-size:0.95rem; line-height:1.5; color:#334155; transition:all 0.2s;">${item}</div>
+                            </div>
+                        `).join('')}
+                        <button class="add-box-btn" onclick="addDiagramItem()" 
+                            style="border:2px dashed #cbd5e1; background:#f8fafc; border-radius:10px; padding:12px; cursor:pointer; min-height:80px; color:#64748b; font-weight:bold; transition:all 0.2s;">+ 상자 추가</button>
+                    </div>
+                `;
+            } else if (type === 'seq') {
+                // ... (Sequence logic keeps as is)
+                html += `
+                    <div style="display:flex; flex-direction:column; gap:10px; align-items:center; width:100%;">
+                        ${AppState.diagramItems.map((item, i) => `
+                            <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                                <div class="structure-box-wrapper" style="width:100%; position:relative; max-width:400px;">
+                                    <button class="remove-box-btn" onclick="removeDiagramItem(${i})" style="position:absolute; top:-8px; right:-8px; background:#ef4444; color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:5;">×</button>
+                                    <div class="structure-box sub" contenteditable="true" oninput="updateDiagramItem(${i}, this.innerText)" onfocus="clearPlaceholder(this)" 
+                                        style="background:white; border:1px solid #cbd5e1; padding:12px; border-radius:10px; width:100%; text-align:center; min-height:50px; font-size:0.95rem;">${item}</div>
+                                </div>
+                                ${i < AppState.diagramItems.length - 1 ? '<div style="font-size:1.2rem; color:#cbd5e1; margin:2px 0;">⬇️</div>' : ''}
+                            </div>
+                        `).join('')}
+                        <button class="add-box-btn" onclick="addDiagramItem()" 
+                            style="border:2px dashed #cbd5e1; background:#f8fafc; border-radius:10px; padding:8px 30px; cursor:pointer; color:#64748b; font-weight:bold; margin-top:5px;">+ 단계 추가</button>
+                    </div>
+                `;
+            } else if (type === 'comp') { // Comparison Chart (3 Columns)
+                const headers = AppState.diagramItems.headers || { left: "대상 1", center: "공통점", right: "대상 2" };
+                html += `
+                    <div class="comp-chart-container">
+                        <div class="comp-column left">
+                            <div class="comp-column-header" contenteditable="true" oninput="updateCompHeader('left', this.innerText)" onfocus="clearPlaceholder(this)">${headers.left}</div>
+                            ${renderCompRegion('left')}
+                        </div>
+                        <div class="comp-column center">
+                            <div class="comp-column-header" contenteditable="true" oninput="updateCompHeader('center', this.innerText)" onfocus="clearPlaceholder(this)">${headers.center}</div>
+                            ${renderCompRegion('center')}
+                        </div>
+                        <div class="comp-column right">
+                            <div class="comp-column-header" contenteditable="true" oninput="updateCompHeader('right', this.innerText)" onfocus="clearPlaceholder(this)">${headers.right}</div>
+                            ${renderCompRegion('right')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Helper for rendering Comparison regions
+        function renderCompRegion(reg) {
+            const items = AppState.diagramItems[reg] || [];
+            return `
+                <div class="comp-block-list">
+                    ${items.map((txt, idx) => `
+                        <div class="structure-box-wrapper" style="width:100%; position:relative;">
+                            <button class="remove-box-btn" onclick="removeCompItem('${reg}', ${idx})" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:12px; cursor:pointer; z-index:15;">×</button>
+                            <div class="structure-box sub" contenteditable="true" oninput="updateCompItem('${reg}', ${idx}, this.innerText)" onfocus="clearPlaceholder(this)" 
+                                style="background:white; border:1px solid #cbd5e1; padding:8px; border-radius:8px; min-height:40px; font-size:0.85rem; width:100%; text-align:center;">${txt}</div>
+                        </div>
+                    `).join('')}
+                    <button class="add-box-btn" onclick="addCompItem('${reg}')" 
+                        style="border:1px dashed #cbd5e1; background:rgba(255,255,255,0.7); border-radius:8px; padding:6px 12px; font-size:0.8rem; cursor:pointer; color:#64748b; width:100%;">+ 추가</button>
+                </div>
+            `;
+        }
+
+        function addDiagramItem() {
+            AppState.diagramItems.push("내용 입력");
+            renderDiagram();
+        }
+
+        function removeDiagramItem(idx) {
+            AppState.diagramItems.splice(idx, 1);
+            renderDiagram();
+        }
+
+        function updateDiagramItem(idx, text) {
+            AppState.diagramItems[idx] = text;
+        }
+
+        function addCompItem(reg) {
+            if (!AppState.diagramItems[reg]) AppState.diagramItems[reg] = [];
+            AppState.diagramItems[reg].push("내용 입력");
+            renderDiagram();
+        }
+
+        function removeCompItem(reg, idx) {
+            AppState.diagramItems[reg].splice(idx, 1);
+            renderDiagram();
+        }
+
+        function updateCompHeader(reg, text) {
+            if (!AppState.diagramItems.headers) AppState.diagramItems.headers = {};
+            AppState.diagramItems.headers[reg] = text;
+        }
+
+        function updateCompItem(reg, idx, text) {
+            AppState.diagramItems[reg][idx] = text;
+        }
+
+        function finishGame(isInstant = false) {
+            if (isInstant) {
+                showReport();
+            } else {
+                addScore(500);
+                showFeedback("대단해요! 글의 전체 구조를 완벽하게 분석했습니다. 🏆", true);
+                setTimeout(() => showReport(), 2000);
+            }
+        }
+
+        /* --- Report --- */
+        function showReport() {
+            showScreen('screen-report');
+            document.getElementById('final-score-display').innerText = AppState.score;
+            document.getElementById('report-level-text').innerText = document.getElementById('level-badge').innerText;
+            document.getElementById('report-date').innerText = new Date().toLocaleString();
+
+            // Text
+            document.getElementById('report-text').innerHTML = AppState.currentText.paragraphs.map(p => {
+                let pText = p.text;
+                const keyword = AppState.currentText.keyword;
+                if (pText.includes(keyword)) {
+                    pText = pText.replace(new RegExp(keyword, 'g'), `<span style="background-color: #fef08a; font-weight:bold; border-radius: 4px; padding: 2px 4px;">${keyword}</span>`);
+                }
+                return `<p style="text-indent: 1.5rem; margin-bottom: 10px; line-height: 1.6;">${pText}</p>`;
+            }).join('');
+
+
+
+            // Details
+            const structLabel = AppState.currentStructureType === 'enum' ? '열거 구조' :
+                AppState.currentStructureType === 'seq' ? '순서 구조' : '비교와 대조';
+            if (document.getElementById('report-structure')) document.getElementById('report-structure').innerText = structLabel;
+            if (document.getElementById('report-structure-name')) document.getElementById('report-structure-name').innerText = structLabel;
+            document.getElementById('report-structure-reason').innerText = AppState.reasonForStructure || "이유가 작성되지 않았습니다.";
+
+            // Diagram (Improved capture)
+            const canvasClone = document.getElementById('diagram-canvas-final').cloneNode(true);
+            // Lock values if they are input/contenteditable
+            canvasClone.querySelectorAll('[contenteditable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.style.border = 'none';
+                el.style.background = 'transparent';
+            });
+            document.getElementById('report-diagram-view').innerHTML = canvasClone.innerHTML;
+
+            // Hide control buttons in report view
+            document.querySelectorAll('#report-diagram-view .remove-box-btn, #report-diagram-view .add-box-btn').forEach(el => el.style.display = 'none');
+
+            // Reflection (Capture from textarea)
+            AppState.userSummary = document.getElementById('user-summary-input').value.trim();
+            document.getElementById('report-user-summary').innerText = AppState.userSummary || "작성된 소감이 없습니다.";
+
+            // Save to history (if not just viewing a saved one)
+            saveToHistory();
+
+            // Recommendations
+            populateRecommendations();
+        }
+
+        function saveToHistory() {
+            try {
+                const history = JSON.parse(localStorage.getItem('reading_reports_history') || '[]');
+                const reportId = Date.now();
+                const newReport = {
+                    id: reportId,
+                    date: new Date().toLocaleString(),
+                    level: document.getElementById('level-badge').innerText || AppState.level,
+                    score: AppState.score,
+                    title: AppState.currentText.title,
+                    structureType: AppState.currentStructureType,
+                    reason: AppState.reasonForStructure,
+                    summary: AppState.userSummary,
+                    diagramItems: AppState.diagramItems,
+                    keyword: AppState.currentText.keyword,
+                    paragraphs: AppState.currentText.paragraphs,
+                    sentences: AppState.currentSentences
+                };
+
+                // Avoid duplication (if viewing then saving again, but here showReport is called on finish)
+                // For now, just prepend
+                history.unshift(newReport);
+                localStorage.setItem('reading_reports_history', JSON.stringify(history.slice(0, 20))); // Keep last 20
+            } catch (e) { console.error("History save failed", e); }
+        }
+
+        function renderHistory() {
+            const listContainer = document.getElementById('history-list');
+            const emptyContainer = document.getElementById('history-empty');
+            if (!listContainer) return;
+
+            const history = JSON.parse(localStorage.getItem('reading_reports_history') || '[]');
+
+            if (history.length === 0) {
+                listContainer.style.display = 'none';
+                emptyContainer.style.display = 'block';
+                return;
+            }
+
+            listContainer.style.display = 'grid';
+            emptyContainer.style.display = 'none';
+            listContainer.innerHTML = history.map(h => `
+                <div class="selection-card" onclick="viewSavedReport(${h.id})">
+                    <div style="font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; color: var(--primary-dark);">${h.title}</div>
+                    <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">${h.date}</div>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <span class="badge ${h.level === '초급' ? 'beginner' : h.level === '중급' ? 'intermediate' : 'advanced'}" style="font-size:0.7rem;">${h.level}</span>
+                        <span style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${h.score}점</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewSavedReport(id) {
+            const history = JSON.parse(localStorage.getItem('reading_reports_history') || '[]');
+            const r = history.find(item => item.id == id);
+            if (!r) return;
+
+            // Mock AppState for viewing
+            AppState.score = r.score;
+            AppState.level = r.level;
+            AppState.currentText = { title: r.title, keyword: r.keyword, paragraphs: r.paragraphs };
+            AppState.currentSentences = r.sentences;
+            AppState.currentStructureType = r.structureType;
+            AppState.reasonForStructure = r.reason;
+            AppState.userSummary = r.summary;
+            AppState.diagramItems = r.diagramItems;
+
+            showScreen('screen-report');
+
+            // Re-populate everything (Simplified bypass of saveToHistory to avoid loop)
+            document.getElementById('final-score-display').innerText = r.score;
+            document.getElementById('report-level-text').innerText = r.level;
+            document.getElementById('report-date').innerText = r.date;
+
+            // Text
+            document.getElementById('report-text').innerHTML = r.paragraphs.map(p => {
+                let pText = p.text;
+                if (pText.includes(r.keyword)) {
+                    pText = pText.replace(new RegExp(r.keyword, 'g'), `<span style="background-color: #fef08a; font-weight:bold; border-radius: 4px; padding: 2px 4px;">${r.keyword}</span>`);
+                }
+                return `<p style="text-indent: 1.5rem; margin-bottom: 10px; line-height: 1.6;">${pText}</p>`;
+            }).join('');
+
+            const structLabel = r.structureType === 'enum' ? '열거 구조' :
+                r.structureType === 'seq' ? '순서 구조' : '비교와 대조';
+            if (document.getElementById('report-structure')) document.getElementById('report-structure').innerText = structLabel;
+            if (document.getElementById('report-structure-name')) document.getElementById('report-structure-name').innerText = structLabel;
+            document.getElementById('report-structure-reason').innerText = r.reason || "이유가 작성되지 않았습니다.";
+            document.getElementById('report-user-summary').innerText = r.summary || "작성된 요약이 없습니다.";
+
+            // Diagram Re-render (Manual since it depends on AppState)
+            renderDiagram(); // This updates diagram-canvas-final
+
+            // Need a slight timeout to clone it from the canvas to the report view
+            setTimeout(() => {
+                const canvasSource = document.getElementById('diagram-canvas-final');
+                const canvasClone = canvasSource.cloneNode(true);
+                canvasClone.querySelectorAll('[contenteditable]').forEach(el => {
+                    el.removeAttribute('contenteditable');
+                    el.style.border = 'none';
+                    el.style.background = 'transparent';
+                });
+                document.getElementById('report-diagram-view').innerHTML = canvasClone.innerHTML;
+                document.querySelectorAll('#report-diagram-view .remove-box-btn, #report-diagram-view .add-box-btn').forEach(el => el.style.display = 'none');
+            }, 100);
+
+            populateRecommendations();
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function clearHistory() {
+            if (confirm("저장된 모든 보고서 기록을 지우시겠습니까? 🗑️")) {
+                localStorage.removeItem('reading_reports_history');
+                renderHistory();
+            }
+        }
+
+        async function exportReport(format) {
+            const paper = document.querySelector('.report-paper');
+            if (!paper) return;
+
+            if (format === 'jpg') {
+                showFeedback("보고서를 이미지로 변환 중입니다... ⏳", true);
+
+                // Use html2canvas to capture the report paper
+                html2canvas(paper, {
+                    scale: 2, // Higher resolution
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: "#ffffff"
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `독해분석보고서_${AppState.userKeyword}_${new Date().toLocaleDateString()}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                    link.click();
+                    showFeedback("이미지 저장이 완료되었습니다! 🖼️", true);
+                }).catch(err => {
+                    console.error("Capture failed", err);
+                    showFeedback("이미지 저장 중 오류가 발생했습니다. 😥", false);
+                });
+            } else if (format === 'pdf') {
+                window.print();
+            }
+        }
+
+        function populateRecommendations() {
+            const container = document.getElementById('report-recommendations');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const level = AppState.level;
+            let recs = [];
+
+            if (level === 'beginner') {
+                recs = [
+                    { icon: '🏃', title: '중급 레벨 도전', desc: '문단이 있는 조금 더 긴 글을 분석해보세요!', action: "startGame('intermediate')" }
+                ];
+            } else if (level === 'intermediate') {
+                recs = [
+                    { icon: '🧗', title: '상급 레벨 도전', desc: '복잡한 구조의 긴 글을 완벽하게 분석해보세요!', action: "startGame('advanced')" },
+                    { icon: '🖌️', title: '도해조직자 그리기', desc: '종이에 오늘 분석한 구조를 직접 그려보며 복습하세요.', action: null }
+                ];
+            } else {
+                recs = [
+                    { icon: '🎓', title: '분석 마스터 도전', desc: '새로운 글을 찾아 직접 구조를 나누고 친구에게 설명해보세요.', action: null },
+                    { icon: '📝', title: '글쓰기 심화', desc: '분석한 구조를 바탕으로 나만의 멋진 설명하는 글을 써보세요.', action: "location.reload()" }
+                ];
+            }
+
+            recs.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'recommend-card';
+                if (r.action) card.onclick = () => eval(r.action);
+                card.innerHTML = `
+                    <div class="recommend-icon">${r.icon}</div>
+                    <div style="text-align:left;">
+                        <div style="font-weight:bold; color:var(--primary-dark);">${r.title}</div>
+                        <div style="font-size:0.85rem; color:#64748b; margin-top:2px;">${r.desc}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        /* [UTILS] -------------------------------------------- */
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+
+        // Initialize 
+        renderQuiz();
+
+    </script>
+</body>
+
+</html>
